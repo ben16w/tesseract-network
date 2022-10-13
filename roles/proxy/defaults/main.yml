@@ -1,0 +1,7 @@
+---
+
+tesseract_username: tesseract
+domain: ben16w.site
+
+proxy_services: ~
+proxy_cloudflare_api_token: ~

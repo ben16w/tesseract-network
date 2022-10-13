@@ -1,0 +1,22 @@
+---
+
+- name: Restart isc-dhcp-server service.
+  ansible.builtin.service:
+    name: isc-dhcp-server.service
+    state: restarted
+  listen: restart isc-dhcp-server
+
+- name: Revoke existing leases.
+  ansible.builtin.file:
+    path: /var/lib/dhcp/dhcpd.leases
+    state: absent
+  listen: restart isc-dhcp-server
+
+- name: Create new leases file.
+  ansible.builtin.file:
+    path: /var/lib/dhcp/dhcpd.leases
+    state: touch
+    owner: root
+    group: root
+    mode: 0755
+  listen: restart isc-dhcp-server

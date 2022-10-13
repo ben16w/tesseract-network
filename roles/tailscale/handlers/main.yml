@@ -1,0 +1,6 @@
+---
+
+- name: Reload sysctl settings.
+  listen: reload sysctl
+  ansible.builtin.command:
+    cmd: sysctl -p /etc/sysctl.conf

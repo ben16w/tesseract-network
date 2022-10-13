@@ -1,0 +1,28 @@
+{% if '192.168.1' in hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] %}
+{%   set proxy_ip = hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] %}
+{% else %}
+{%   set proxy_ip = hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] %}
+{% endif  %}
+upstream:
+  default:
+    - https://dns.cloudflare.com # cloudflare
+    - https://dns.nextdns.io # nextdns
+    - 94.140.14.140 # adguard-dns
+    - 46.182.19.48 # digitalcourage
+    - https://dnsforge.de/dns-query # dnsforge
+blocking:
+  blackLists:
+    ads:
+      - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+  clientGroupsBlock:
+    default:
+      - ads
+customDNS:
+  customTTL: 1h
+  mapping:
+    {{ domain }}: {{ proxy_ip }}
+{%  for record, ip in a_records.items() %}
+    {{ record }}: {{ ip }}
+{%  endfor %}
+port: 53
+httpPort: 4000

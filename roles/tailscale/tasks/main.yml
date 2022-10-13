@@ -1,0 +1,57 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - tailscale_auth_key is not none
+
+- name: Enable IPV4 forwarding in the Linux kernel.
+  notify: reload sysctl
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    search_string: 'net.ipv4.ip_forward'
+    line: 'net.ipv4.ip_forward = 1'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable IPV6 forwarding in the Linux kernel.
+  notify: reload sysctl
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    search_string: 'net.ipv6.conf.all.forwarding'
+    line: 'net.ipv6.conf.all.forwarding = 1'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Download tailscale install script.
+  ansible.builtin.get_url:
+    url: https://tailscale.com/install.sh
+    dest: /tmp/tailscale_install.sh
+    owner: root
+    group: root
+    mode: 0744
+    force: false
+
+- name: Install tailscale using downloaded script.
+  ansible.builtin.command:
+    cmd: bash /tmp/tailscale_install.sh
+    creates: /usr/bin/tailscale
+
+- name: Make sure tailscale service unit is running and enabled.
+  ansible.builtin.systemd:
+    state: started
+    name: tailscaled
+    enabled: true
+
+- name: Check tailscale status.
+  register: result
+  changed_when: false
+  ansible.builtin.command:
+    cmd: "tailscale status"
+
+- name: Run tailscale up.
+  when: "'Logged out' in result.stdout"
+  ansible.builtin.command:
+    cmd: "tailscale up --authkey '{{ tailscale_auth_key  }}' --accept-dns=false --advertise-routes=192.168.1.0/24 --advertise-exit-node"

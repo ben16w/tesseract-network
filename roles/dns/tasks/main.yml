@@ -1,0 +1,66 @@
+---
+
+# Should use normal download method with version default var
+
+- name: Setting architecture to amd64.
+  ansible.builtin.set_fact:
+    download_number: 7
+  when: ansible_architecture == "x86_64"
+
+- name: Setting architecture to arm64.
+  ansible.builtin.set_fact:
+    download_number: 4
+  when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+
+- name: Getting download url for latest blocky release.
+  ansible.builtin.uri:                                                               
+    url: https://api.github.com/repos/0xERR0R/blocky/releases/latest
+    return_content: true                                             
+  register: json_reponse
+
+- name: Downloading blocky.
+  ansible.builtin.get_url:                                                           
+    url: "{{ json_reponse.json.assets[download_number].browser_download_url }}"                       
+    dest: /tmp/blocky.tar.gz
+
+- name: Create a blocky installation directory if it does not already exist.
+  ansible.builtin.file:
+    path: /opt/blocky
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Extract blocky to installation directory.
+  notify: restart blocky
+  ansible.builtin.unarchive:
+    src: /tmp/blocky.tar.gz
+    dest: /opt/blocky
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Template configuration file to config.yml.
+  notify: restart blocky
+  ansible.builtin.template:
+    src: templates/config.yml.j2
+    dest: /opt/blocky/config.yml
+    force: true
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Put the blocky systemd file into place.
+  ansible.builtin.template:
+    src: templates/blocky.service.j2
+    dest: /etc/systemd/system/blocky.service
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Make sure the blocky systemd service unit is running and enabled.
+  ansible.builtin.systemd:
+    state: started
+    name: blocky
+    enabled: true

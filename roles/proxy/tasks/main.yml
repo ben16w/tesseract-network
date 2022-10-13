@@ -1,0 +1,59 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - services is not none
+      - cloudflare_api_token is not none
+
+- name: Setting architecture to amd64.
+  ansible.builtin.set_fact:
+    download_arch: "amd64"
+  when: ansible_architecture == "x86_64"
+
+- name: Setting architecture to arm64.
+  ansible.builtin.set_fact:
+    download_arch: "arm64"
+  when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+
+- name: Download Caddy bin.
+  ansible.builtin.get_url:
+    url: "https://caddyserver.com/api/download?os=linux&arch={{ download_arch }}&p=github.com%2Fcaddy-dns%2Fcloudflare"
+    dest: /usr/bin/caddy
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Change file ownership, group and permissions
+  ansible.builtin.file:
+    path: /opt/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Template a Caddyfile
+  notify: restart caddy
+  ansible.builtin.template:
+    src: templates/Caddyfile.j2
+    dest: /opt/caddy/Caddyfile
+    force: true
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Putcaddy systemd file into place.
+  notify: restart caddy
+  template:
+    src: templates/caddy.service.j2
+    dest: /etc/systemd/system/caddy.service
+    force: true
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Make sure caddy service unit is running and enabled.
+  ansible.builtin.systemd:
+    state: started
+    name: caddy
+    enabled: true

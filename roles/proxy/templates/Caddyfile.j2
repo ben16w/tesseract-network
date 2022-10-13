@@ -1,0 +1,13 @@
+{
+    acme_dns cloudflare {{ proxy_cloudflare_api_token }}
+}
+
+{% for service in proxy_services %}
+{% if service.subdomain is none %}
+{{ domain }} {
+{% else %}
+{{ service.subdomain }}.{{ domain }} {
+{% endif %}
+  reverse_proxy {{ service.target }}
+}
+{% endfor %}
