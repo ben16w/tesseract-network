@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  become: true
+  roles:
+      - {role: 'dhcp', tags: 'dhcp'}
+      - {role: 'dns', tags: 'dns'}
+      - {role: 'proxy', tags: 'proxy'}
+      - {role: 'tailscale', tags: 'tailscale'}
