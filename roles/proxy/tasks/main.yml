@@ -1,10 +1,11 @@
 ---
 
+# sysctl -w net.core.rmem_max=2500000
+
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - services is not none
-      - cloudflare_api_token is not none
+      - proxy_services is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
@@ -19,10 +20,20 @@
 - name: Download Caddy bin.
   ansible.builtin.get_url:
     url: "https://caddyserver.com/api/download?os=linux&arch={{ download_arch }}&p=github.com%2Fcaddy-dns%2Fcloudflare"
-    dest: /usr/bin/caddy
-    mode: 0755
+    dest: /tmp/caddy
+    force: false
     owner: root
     group: root
+    mode: 0755
+
+- name: Copy caddy bin to destination.
+  ansible.builtin.copy:
+    src: "/tmp/caddy"
+    dest: /usr/bin/caddy
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0744
 
 - name: Change file ownership, group and permissions
   ansible.builtin.file:

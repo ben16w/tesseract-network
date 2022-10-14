@@ -2,26 +2,37 @@
 
 # Should use normal download method with version default var
 
+- debug:
+    msg: "{{a_records.items()}}"
+
+- name: Set hosts in /etc/host.
+  lineinfile:
+    path: /etc/hosts
+    search_string: "{{ item[0] }}"
+    line: "{{ item[0]  }} {{ item[1] }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ a_records.items() }}"
+  when: item != inventory_hostname
+
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
-    download_number: 7
+    download_arch: "x86_64"
   when: ansible_architecture == "x86_64"
 
 - name: Setting architecture to arm64.
   ansible.builtin.set_fact:
-    download_number: 4
+    download_arch: "arm64"
   when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
 
-- name: Getting download url for latest blocky release.
-  ansible.builtin.uri:                                                               
-    url: https://api.github.com/repos/0xERR0R/blocky/releases/latest
-    return_content: true                                             
-  register: json_reponse
-
 - name: Downloading blocky.
-  ansible.builtin.get_url:                                                           
-    url: "{{ json_reponse.json.assets[download_number].browser_download_url }}"                       
+  ansible.builtin.get_url:
+    url: "https://github.com/0xERR0R/blocky/releases/download/v{{ blocky_version }}/blocky_{{ blocky_version }}_Linux_{{ download_arch }}.tar.gz"
     dest: /tmp/blocky.tar.gz
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Create a blocky installation directory if it does not already exist.
   ansible.builtin.file:
@@ -36,7 +47,7 @@
   ansible.builtin.unarchive:
     src: /tmp/blocky.tar.gz
     dest: /opt/blocky
-    remote_src: yes
+    remote_src: true
     owner: root
     group: root
     mode: 0755

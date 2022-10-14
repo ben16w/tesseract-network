@@ -1,8 +1,12 @@
+{#
+I don't thing this should be here
 {% if '192.168.1' in hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] %}
 {%   set proxy_ip = hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] %}
 {% else %}
 {%   set proxy_ip = hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] %}
 {% endif  %}
+#}
+
 upstream:
   default:
     - https://dns.cloudflare.com # cloudflare

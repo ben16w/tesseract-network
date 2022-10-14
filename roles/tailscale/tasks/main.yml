@@ -48,10 +48,11 @@
 - name: Check tailscale status.
   register: result
   changed_when: false
+  failed_when: result.rc != 0 and 'Logged out' not in result.stdout
   ansible.builtin.command:
     cmd: "tailscale status"
 
 - name: Run tailscale up.
   when: "'Logged out' in result.stdout"
   ansible.builtin.command:
-    cmd: "tailscale up --authkey '{{ tailscale_auth_key  }}' --accept-dns=false --advertise-routes=192.168.1.0/24 --advertise-exit-node"
+    cmd: tailscale up --authkey "{{ tailscale_auth_key }}" --accept-dns=false --advertise-routes=192.168.1.0/24 --advertise-exit-node
