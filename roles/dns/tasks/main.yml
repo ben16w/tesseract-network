@@ -1,20 +1,15 @@
 ---
 
-# Should use normal download method with version default var
-
-- debug:
-    msg: "{{a_records.items()}}"
-
 - name: Set hosts in /etc/host.
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: "{{ item[0] }}"
-    line: "{{ item[0]  }} {{ item[1] }}"
+    search_string: "{{ item.key }}"
+    line: "{{ item.value }} {{ item.key }}"
     owner: root
     group: root
     mode: 0644
-  with_items: "{{ a_records.items() }}"
-  when: item != inventory_hostname
+  with_items: "{{ a_records | dict2items }}"
+  when: item.key != inventory_hostname
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
