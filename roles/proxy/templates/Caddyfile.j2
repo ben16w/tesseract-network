@@ -12,10 +12,6 @@
 {% endif %}
 }
 
-{% if proxy_cloudflare_api_token is not none %}
-    acme_dns cloudflare {{ proxy_cloudflare_api_token }}
-{% endif %}
-
 {% for service in proxy_services %}
 {% if service.subdomain is none %}
 {{ domain }} {
