@@ -1,6 +1,6 @@
 ---
 
-- name: Set hosts in /etc/host.
+- name: Add records to /etc/hosts.
   ansible.builtin.lineinfile:
     path: /etc/hosts
     search_string: "{{ item.key }}"
@@ -8,7 +8,7 @@
     owner: root
     group: root
     mode: 0644
-  with_items: "{{ a_records | dict2items }}"
+  with_items: "{{ dns_records | dict2items }}"
   when: item.key != inventory_hostname
 
 - name: Setting architecture to amd64.

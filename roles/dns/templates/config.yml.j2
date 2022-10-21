@@ -25,7 +25,7 @@ customDNS:
   customTTL: 1h
   mapping:
     {{ domain }}: {{ proxy_ip }}
-{%  for record, ip in a_records.items() %}
+{%  for record, ip in dns_records.items() %}
     {{ record }}: {{ ip }}
 {%  endfor %}
 port: 53

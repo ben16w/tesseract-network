@@ -30,10 +30,10 @@
   ansible.builtin.copy:
     src: "/tmp/caddy"
     dest: /usr/bin/caddy
-    remote_src: yes
+    remote_src: true
     owner: root
     group: root
-    mode: 0744
+    mode: 0755
 
 - name: Change file ownership, group and permissions
   ansible.builtin.file:
@@ -42,6 +42,14 @@
     owner: root
     group: root
     mode: 0755
+
+- name: Change file ownership, group and permissions
+  ansible.builtin.file:
+    path: /var/log/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
 
 - name: Template a Caddyfile
   notify: restart caddy
@@ -55,7 +63,7 @@
 
 - name: Putcaddy systemd file into place.
   notify: restart caddy
-  template:
+  ansible.builtin.template:
     src: templates/caddy.service.j2
     dest: /etc/systemd/system/caddy.service
     force: true
