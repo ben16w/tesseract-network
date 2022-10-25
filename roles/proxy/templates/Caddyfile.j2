@@ -20,6 +20,9 @@
 
   email {{ email_username }}
 
+  order cache before rewrite
+  cache
+
 }
 
 
@@ -31,6 +34,7 @@
 {{ service.subdomain }}.{{ domain }} {
 {% endif %}
 
+  cache
   reverse_proxy {{ service.target }}
 
 {% if service.gzip is undefined or service.gzip is true %}

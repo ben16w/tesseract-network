@@ -28,7 +28,10 @@
 
 - name: Download Caddy bin.
   ansible.builtin.get_url:
-    url: "https://caddyserver.com/api/download?os=linux&arch={{ download_arch }}&p=github.com%2Fcaddy-dns%2Fcloudflare"
+    url: "https://caddyserver.com/api/download?os=linux\
+      &arch={{ download_arch }}\
+      &p=github.com%2Fcaddy-dns%2Fcloudflare\
+      &p=github.com%2Fcaddyserver%2Fcache-handler"
     dest: /tmp/caddy
     force: false
     owner: root
