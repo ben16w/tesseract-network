@@ -1,4 +1,5 @@
 {
+
   log {
     output file /var/log/caddy/caddy.log {
       roll_size 10mb
@@ -7,17 +8,41 @@
     }
     format console
   }
+
+{% if proxy_acme_staging is true %}
+  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+  debug
+{% endif %}
+
 {% if proxy_cloudflare_api_token is not none %}
   acme_dns cloudflare {{ proxy_cloudflare_api_token }}
 {% endif %}
+
+  email {{ email_username }}
+
 }
 
+
 {% for service in proxy_services %}
+
 {% if service.subdomain is none %}
 {{ domain }} {
 {% else %}
 {{ service.subdomain }}.{{ domain }} {
 {% endif %}
+
   reverse_proxy {{ service.target }}
+
+{% if service.gzip is undefined or service.gzip is true %}
+  encode gzip
+{% endif %}
+
+{% if service.http1 is defined and service.http1 is true %}
+  tls {
+      alpn http/1.1
+  }
+{% endif %}
+
 }
+
 {% endfor %}

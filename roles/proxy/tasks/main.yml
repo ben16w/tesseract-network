@@ -1,11 +1,10 @@
 ---
 
-# sysctl -w net.core.rmem_max=2500000
-
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
       - proxy_services is not none
+      - email_username is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
@@ -16,6 +15,16 @@
   ansible.builtin.set_fact:
     download_arch: "arm64"
   when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+
+- name: Increase maximum socket receive buffer.
+  notify: reload sysctl
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    search_string: 'net.core.rmem_max'
+    line: 'net.core.rmem_max=2500000'
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Download Caddy bin.
   ansible.builtin.get_url:
