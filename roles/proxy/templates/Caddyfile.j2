@@ -34,10 +34,12 @@
 {{ service.subdomain }}.{{ domain }} {
 {% endif %}
 
+{% if service.cache is undefined or service.cache is true %}
   cache
+{% endif %}
   reverse_proxy {{ service.target }}
 
-{% if service.gzip is undefined or service.gzip is true %}
+{% if service.compress is undefined or service.compress is true %}
   encode gzip
 {% endif %}
 

@@ -1,14 +1,15 @@
 ---
 
 tesseract_username: tesseract
-domain: ben16w.site
+domain: ~
 
 email_username: ~
 
 proxy_services: ~
-#      - subdomain: example
-#        target: http://gengar.lan:80
-#        http1: true
-#        gzip: true
+#  - subdomain: example
+#    target: http://gengar.lan:80
+#    http1: false
+#    compress: true
+#    cache: true
 proxy_cloudflare_api_token: ~
 proxy_acme_staging: false

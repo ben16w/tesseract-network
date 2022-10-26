@@ -1,11 +1,16 @@
 ---
 
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - dns_ip is not none
+
 - name: Ensure dhcpd package is installed.
   ansible.builtin.package:
     name: isc-dhcp-server
     state: present
 
-- name: Ensure destination for dhcp file exists.
+- name: Ensure destination for dhcp directory exists.
   ansible.builtin.file:
     path: /etc/dhcp/
     state: directory
@@ -22,8 +27,8 @@
     mode: 0755
   notify: restart isc-dhcp-server
 
-- name: Replace a localhost entry.
-  lineinfile:
+- name: Add interface config.
+  ansible.builtin.lineinfile:
     path: /etc/default/isc-dhcp-server
     search_string: INTERFACESv4
     line: INTERFACESv4="eth0 eth1"
@@ -32,8 +37,8 @@
     mode: 0644
   notify: restart isc-dhcp-server
 
-- name: Replace a localhost entry.
-  lineinfile:
+- name: Set dhcpd config file location.
+  ansible.builtin.lineinfile:
     path: /etc/default/isc-dhcp-server
     search_string: DHCPDv4_CONF
     line: DHCPDv4_CONF=/etc/dhcp/dhcpd.conf

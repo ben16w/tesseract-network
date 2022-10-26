@@ -5,6 +5,7 @@
     that:
       - proxy_services is not none
       - email_username is not none
+      - domain is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
@@ -26,26 +27,58 @@
     group: root
     mode: 0644
 
-- name: Download Caddy bin.
-  ansible.builtin.get_url:
-    url: "https://caddyserver.com/api/download?os=linux\
-      &arch={{ download_arch }}\
-      &p=github.com%2Fcaddy-dns%2Fcloudflare\
-      &p=github.com%2Fcaddyserver%2Fcache-handler"
-    dest: /tmp/caddy
-    force: false
-    owner: root
-    group: root
-    mode: 0755
+- name: Check if caddy is installed.
+  ansible.builtin.stat:
+    path: /usr/bin/caddy
+  register: is_caddy_installed
 
-- name: Copy caddy bin to destination.
-  ansible.builtin.copy:
-    src: "/tmp/caddy"
-    dest: /usr/bin/caddy
-    remote_src: true
-    owner: root
-    group: root
-    mode: 0755
+- name: If caddy is installed.
+  when: not is_caddy_installed.stat.exists
+  block:
+
+    - name: Ensure Go is installed.
+      ansible.builtin.package:
+        name: golang-go
+        state: present
+
+    - name: Download and extract xcaddy archive into tmp directory.
+      ansible.builtin.get_url:
+        url: "https://github.com/caddyserver/xcaddy/releases/download/v0.3.1/xcaddy_0.3.1_linux_{{ download_arch }}.deb"
+        dest: /tmp/xcaddyy.deb
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Install a xcaddy package.
+      ansible.builtin.apt:
+        deb: /tmp/xcaddyy.deb
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /tmp/caddy
+        state: directory
+        owner: root
+        group: root
+        mode: 0777
+
+    - name: Xcaddy build.
+      ansible.builtin.command:
+        cmd: >
+          xcaddy build
+          --with github.com/caddy-dns/cloudflare
+          --with github.com/caddyserver/cache-handler
+        creates: /tmp/caddy/caddy
+        chdir: /tmp/caddy
+      when: not is_caddy_installed.stat.exists
+
+    - name: Install caddy.
+      ansible.builtin.copy:
+        src: /tmp/caddy/caddy
+        dest: /usr/bin/caddy
+        remote_src: true
+        owner: root
+        group: root
+        mode: 0755
 
 - name: Change file ownership, group and permissions
   ansible.builtin.file:
