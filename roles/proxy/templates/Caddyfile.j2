@@ -34,7 +34,7 @@
 {{ service.subdomain }}.{{ domain }} {
 {% endif %}
 
-{% if service.cache is undefined or service.cache is true %}
+{% if service.cache is defined and service.cache is true %}
   cache
 {% endif %}
   reverse_proxy {{ service.target }}

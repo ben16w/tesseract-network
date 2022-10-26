@@ -10,6 +10,6 @@ proxy_services: ~
 #    target: http://gengar.lan:80
 #    http1: false
 #    compress: true
-#    cache: true
+#    cache: false
 proxy_cloudflare_api_token: ~
 proxy_acme_staging: false
