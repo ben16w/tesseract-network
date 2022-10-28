@@ -7,6 +7,8 @@ I don't thing this should be here
 {% endif  %}
 #}
 
+port: 53
+httpPort: 4000
 upstream:
   default:
     - https://dns.cloudflare.com # cloudflare
@@ -28,5 +30,7 @@ customDNS:
 {%  for record, ip in dns_records.items() %}
     {{ record }}: {{ ip }}
 {%  endfor %}
-port: 53
-httpPort: 4000
+queryLog:
+  type: csv
+  target: /var/log/blocky
+  logRetentionDays: 7

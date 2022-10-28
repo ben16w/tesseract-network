@@ -34,6 +34,14 @@
     group: root
     mode: 0755
 
+- name: Create blocky logs directory.
+  ansible.builtin.file:
+    path: /var/log/blocky
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+
 - name: Create a blocky installation directory if it does not already exist.
   ansible.builtin.file:
     path: /opt/blocky
