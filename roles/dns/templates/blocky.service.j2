@@ -5,8 +5,8 @@ After=network.target
 
 [Service]
 Type=simple
-User={{ tesseract_username }}
-Group={{ tesseract_username }}
+User=root
+Group=root
 ExecStart=/opt/blocky/blocky --config /opt/blocky/config.yml
 Restart=always
 RestartSec=1s

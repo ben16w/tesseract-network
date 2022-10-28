@@ -6,8 +6,8 @@ Requires=network-online.target
 
 [Service]
 Type=notify
-User={{ tesseract_username }}
-Group={{ tesseract_username }}
+User=root
+Group=root
 ExecStart=/usr/bin/caddy run --environ --config /opt/caddy/Caddyfile
 ExecReload=/usr/bin/caddy reload --config /opt/caddy/Caddyfile --force
 TimeoutStopSec=5s
