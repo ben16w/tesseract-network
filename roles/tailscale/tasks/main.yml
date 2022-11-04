@@ -42,7 +42,7 @@
 - name: Set Tailscale MTU.
   notify: restart tailscale
   ansible.builtin.lineinfile:
-    path: /etc/sysctl.conf
+    path: /etc/default/tailscaled
     search_string: "TS_DEBUG_MTU"
     line: "TS_DEBUG_MTU={{ tailscale_mtu }}"
     owner: root
