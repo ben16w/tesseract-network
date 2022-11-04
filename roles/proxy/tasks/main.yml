@@ -66,7 +66,7 @@
         cmd: >
           xcaddy build
           --with github.com/caddy-dns/cloudflare
-          --with github.com/caddyserver/cache-handler
+#          --with github.com/caddyserver/cache-handler
         creates: /tmp/caddy/caddy
         chdir: /tmp/caddy
       when: not is_caddy_installed.stat.exists

@@ -20,9 +20,10 @@
 
   email {{ email_username }}
 
+{#
   order cache before rewrite
   cache
-
+#}
 }
 
 
@@ -34,9 +35,11 @@
 {{ service.subdomain }}.{{ domain }} {
 {% endif %}
 
+{#
 {% if service.cache is defined and service.cache is true %}
   cache
 {% endif %}
+#}
   reverse_proxy {{ service.target }}
 
 {% if service.compress is undefined or service.compress is true %}
