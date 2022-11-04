@@ -39,6 +39,16 @@
     cmd: bash /tmp/tailscale_install.sh
     creates: /usr/bin/tailscale
 
+- name: Set Tailscale MTU.
+  notify: restart tailscale
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    search_string: "TS_DEBUG_MTU"
+    line: "TS_DEBUG_MTU={{ tailscale_mtu }}"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Make sure tailscale service unit is running and enabled.
   ansible.builtin.systemd:
     state: started
