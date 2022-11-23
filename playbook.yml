@@ -1,6 +1,7 @@
 ---
 
-- hosts: all
+- name: Run tesseract-network roles.
+  hosts: all
   become: true
   roles:
       - {role: 'dhcp', tags: 'dhcp'}

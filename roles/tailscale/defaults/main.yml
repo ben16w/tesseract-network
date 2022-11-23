@@ -1,4 +1,4 @@
 ---
 
 tailscale_auth_key: ~
-tailscale_mtu: 1000 # Default is 1280
+tailscale_mtu: 1280 # Default is 1280
