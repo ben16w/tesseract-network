@@ -7,7 +7,7 @@
 
 - name: Enable IPV4 forwarding in the Linux kernel.
   notify: reload sysctl
-  when: tailscale_advertise_routes is defined
+  when: tailscale_advertise_routes is not none
   ansible.builtin.lineinfile:
     path: /etc/sysctl.conf
     search_string: 'net.ipv4.ip_forward'
@@ -18,7 +18,7 @@
 
 - name: Enable IPV6 forwarding in the Linux kernel.
   notify: reload sysctl
-  when: tailscale_advertise_routes is defined
+  when: tailscale_advertise_routes is not none
   ansible.builtin.lineinfile:
     path: /etc/sysctl.conf
     search_string: 'net.ipv6.conf.all.forwarding'
@@ -43,7 +43,7 @@
 
 - name: Set Tailscale MTU.
   notify: restart tailscale
-  when: tailscale_mtu is defined
+  when: tailscale_mtu is not none
   ansible.builtin.lineinfile:
     path: /etc/default/tailscaled
     search_string: "TS_DEBUG_MTU"
@@ -54,7 +54,7 @@
 
 - name: Remove Tailscale MTU if not set.
   notify: restart tailscale
-  when: tailscale_mtu is not defined
+  when: tailscale_mtu is none
   ansible.builtin.lineinfile:
     path: /etc/default/tailscaled
     search_string: "TS_DEBUG_MTU"
@@ -87,7 +87,7 @@
     cmd: tailscale set --accept-dns=false
 
 - name: Set tailscale advertise-routes.
-  when: tailscale_advertise_routes is defined
+  when: tailscale_advertise_routes is not none
   ansible.builtin.command:
     cmd: tailscale set --advertise-routes={{ tailscale_advertise_routes }}
 
