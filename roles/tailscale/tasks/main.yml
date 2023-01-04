@@ -7,6 +7,7 @@
 
 - name: Enable IPV4 forwarding in the Linux kernel.
   notify: reload sysctl
+  when: tailscale_advertise_routes is defined
   ansible.builtin.lineinfile:
     path: /etc/sysctl.conf
     search_string: 'net.ipv4.ip_forward'
@@ -17,6 +18,7 @@
 
 - name: Enable IPV6 forwarding in the Linux kernel.
   notify: reload sysctl
+  when: tailscale_advertise_routes is defined
   ansible.builtin.lineinfile:
     path: /etc/sysctl.conf
     search_string: 'net.ipv6.conf.all.forwarding'
