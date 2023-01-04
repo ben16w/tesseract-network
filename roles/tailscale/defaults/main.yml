@@ -1,4 +1,8 @@
 ---
 
 tailscale_auth_key: ~
-tailscale_mtu: 1280 # Default is 1280
+tailscale_mtu: ~ # Default is 1280
+tailscale_accept_dns: false
+tailscale_advertise_routes: ~  # For example 192.168.1.0/24
+tailscale_advertise_exit_node: false
+tailscale_ssh: false

@@ -41,10 +41,22 @@
 
 - name: Set Tailscale MTU.
   notify: restart tailscale
+  when: tailscale_mtu is defined
   ansible.builtin.lineinfile:
     path: /etc/default/tailscaled
     search_string: "TS_DEBUG_MTU"
     line: "TS_DEBUG_MTU={{ tailscale_mtu }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Remove Tailscale MTU if not set.
+  notify: restart tailscale
+  when: tailscale_mtu is not defined
+  ansible.builtin.lineinfile:
+    path: /etc/default/tailscaled
+    search_string: "TS_DEBUG_MTU"
+    state: absent
     owner: root
     group: root
     mode: 0644
@@ -65,10 +77,24 @@
 - name: Run tailscale up.
   when: "'Logged out' in result.stdout"
   ansible.builtin.command:
-    cmd: >
-      tailscale up
-      --authkey "{{ tailscale_auth_key }}"
-      --accept-dns=false
-      --advertise-routes=192.168.1.0/24
-      --advertise-exit-node
-# --accept-routes=true
+    cmd: tailscale up --authkey "{{ tailscale_auth_key }}"
+
+- name: Set tailscale accept-dns.
+  when: tailscale_accept_dns is false
+  ansible.builtin.command:
+    cmd: tailscale set --accept-dns=false
+
+- name: Set tailscale advertise-routes.
+  when: tailscale_advertise_routes is defined
+  ansible.builtin.command:
+    cmd: tailscale set --advertise-routes={{ tailscale_advertise_routes }}
+
+- name: Set tailscale advertise-exit-node.
+  when: tailscale_advertise_exit_node is true
+  ansible.builtin.command:
+    cmd: tailscale set --advertise-exit-node
+
+- name: Set tailscale ssh.
+  when: tailscale_ssh is true
+  ansible.builtin.command:
+    cmd: tailscale set --ssh
