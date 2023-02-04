@@ -13,3 +13,7 @@ proxy_services: ~
 #    cache: false
 proxy_cloudflare_api_token: ~
 proxy_acme_staging: false
+
+proxy_http_only: false
+
+proxy_debug: false

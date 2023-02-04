@@ -5,3 +5,8 @@
   ansible.builtin.systemd:
     state: restarted
     name: caddy
+
+- name: Restart caddy.
+  listen: reload sysctl
+  ansible.builtin.command:
+    cmd: sysctl --system

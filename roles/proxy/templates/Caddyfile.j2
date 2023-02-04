@@ -9,13 +9,26 @@
     format console
   }
 
-{% if proxy_acme_staging is true %}
-  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-  debug
-{% endif %}
+
+
+{% if proxy_http_only is false %}
 
 {% if proxy_cloudflare_api_token is not none %}
   acme_dns cloudflare {{ proxy_cloudflare_api_token }}
+{% endif %}
+
+{% if proxy_acme_staging is true %}
+  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
+
+{% else %}
+
+  auto_https off
+
+{% endif %}
+
+{% if proxy_debug is true %}
+  debug
 {% endif %}
 
   email {{ email_username }}
@@ -23,6 +36,9 @@
 {#
   order cache before rewrite
   cache
+
+  local_certs
+  skip_install_trust
 #}
 }
 
@@ -30,9 +46,9 @@
 {% for service in proxy_services %}
 
 {% if service.subdomain is none %}
-{{ domain }} {
+{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ domain }} {
 {% else %}
-{{ service.subdomain }}.{{ domain }} {
+{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ domain }} {
 {% endif %}
 
 {#

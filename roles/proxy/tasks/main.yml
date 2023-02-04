@@ -27,6 +27,40 @@
     group: root
     mode: 0644
 
+# Not going to work cos: go: /usr/bin/go /usr/lib/go /usr/share/go /usr/share/man/man1/go.1.gz
+- name: Check if go is installed.
+  ansible.builtin.stat:
+    path: /usr/local/go
+  register: is_go_installed
+
+- name: If go is installed.
+  when: not is_go_installed.stat.exists
+  block:
+
+    - name: Download go archive.
+      ansible.builtin.get_url:
+        url: https://go.dev/dl/go1.19.5.linux-amd64.tar.gz
+        dest: /tmp/go.tar.gz
+        mode: 0744
+        owner: root
+        group: root
+
+    - name: Extract go archive into /usr/local/go.
+      ansible.builtin.unarchive:
+        src: /tmp/go.tar.gz
+        dest: /usr/local
+        remote_src: true
+        creates: /usr/local/go
+
+- name: Add another bin dir to system-wide $PATH.
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/go.sh
+    line: 'export PATH=$PATH:/usr/local/go/bin'
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Check if caddy is installed.
   ansible.builtin.stat:
     path: /usr/bin/caddy
@@ -36,22 +70,17 @@
   when: not is_caddy_installed.stat.exists
   block:
 
-    - name: Ensure Go is installed.
-      ansible.builtin.package:
-        name: golang-go
-        state: present
-
     - name: Download and extract xcaddy archive into tmp directory.
       ansible.builtin.get_url:
         url: "https://github.com/caddyserver/xcaddy/releases/download/v0.3.1/xcaddy_0.3.1_linux_{{ download_arch }}.deb"
-        dest: /tmp/xcaddyy.deb
+        dest: /tmp/xcaddy.deb
         owner: root
         group: root
         mode: 0644
 
     - name: Install a xcaddy package.
       ansible.builtin.apt:
-        deb: /tmp/xcaddyy.deb
+        deb: /tmp/xcaddy.deb
 
     - name: Change file ownership, group and permissions
       ansible.builtin.file:
@@ -62,6 +91,8 @@
         mode: 0777
 
     - name: Xcaddy build.
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/usr/local/go/bin"
       ansible.builtin.command:
         cmd: >
           xcaddy build
