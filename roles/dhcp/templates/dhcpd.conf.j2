@@ -2,7 +2,7 @@
 authoritative;
 ddns-update-style none;
 
-option domain-name-servers {{ dns_ip }};
+option domain-name-servers {{ dhcp_dns_host }};
 default-lease-time 600;
 max-lease-time 7200;
 

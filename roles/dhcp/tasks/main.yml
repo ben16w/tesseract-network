@@ -3,7 +3,7 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - dns_ip is not none
+      - dhcp_dns_host is not none
 
 - name: Ensure dhcpd package is installed.
   ansible.builtin.package:
