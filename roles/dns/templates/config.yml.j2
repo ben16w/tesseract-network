@@ -1,12 +1,3 @@
-{#
-I don't thing this should be here
-{% if '192.168.1' in hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] %}
-{%   set proxy_ip = hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] %}
-{% else %}
-{%   set proxy_ip = hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] %}
-{% endif  %}
-#}
-
 port: 53
 httpPort: 4000
 upstream:
@@ -26,7 +17,7 @@ blocking:
 customDNS:
   customTTL: 1h
   mapping:
-    {{ domain }}: {{ proxy_ip }}
+    {{ domain }}: {{ dns_proxy_host }}
 {%  for record, ip in dns_records.items() %}
     {{ record }}: {{ ip }}
 {%  endfor %}
