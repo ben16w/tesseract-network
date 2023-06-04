@@ -1,0 +1,25 @@
+---
+
+# Install WireGuard
+- name: Install WireGuard
+  apt:
+    name: wireguard
+
+# Generate private and public keys
+- name: Generate private and public keys
+  command: "umask 077 && wg genkey | tee /etc/wireguard/privatekey | wg pubkey > /etc/wireguard/publickey"
+  changed_when: false
+
+# Create the WireGuard configuration file
+- name: Create WireGuard configuration file
+  template:
+    src: templates/wg0.conf.j2
+    dest: /etc/wireguard/wg0.conf
+  notify: start wireGuard
+
+# Start WireGuard
+- name: Start WireGuard
+  systemd:
+    name: wg-quick@wg0
+    state: started
+    enabled: yes
