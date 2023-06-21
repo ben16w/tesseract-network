@@ -5,7 +5,7 @@
     that:
       - proxy_services is not none
       - email_username is not none
-      - domain is not none
+      - tesseract_domain is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:

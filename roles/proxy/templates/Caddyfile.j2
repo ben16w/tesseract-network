@@ -46,9 +46,9 @@
 {% for service in proxy_services %}
 
 {% if service.subdomain is none %}
-{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ domain }} {
+{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ tesseract_domain }} {
 {% else %}
-{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ domain }} {
+{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ tesseract_domain }} {
 {% endif %}
 
 {#

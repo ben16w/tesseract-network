@@ -17,7 +17,7 @@ blocking:
 customDNS:
   customTTL: 1h
   mapping:
-    {{ domain }}: {{ dns_proxy_host }}
+    {{ tesseract_domain }}: {{ dns_proxy_host }}
 {%  for record, ip in dns_records.items() %}
     {{ record }}: {{ ip }}
 {%  endfor %}
