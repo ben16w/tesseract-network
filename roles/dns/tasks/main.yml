@@ -4,6 +4,7 @@
   ansible.builtin.assert:
     that:
       - dns_proxy_host is not none
+      - tesseract_hostname is not none
       - tesseract_domain is not none
 
 - name: Add records to /etc/hosts.
@@ -15,7 +16,7 @@
     group: root
     mode: 0644
   with_items: "{{ dns_records | dict2items }}"
-  when: item.key != inventory_hostname
+  when: item.key != tesseract_hostname
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:

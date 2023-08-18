@@ -1,6 +1,7 @@
 ---
 
 # tesseract_username: ~
+tesseract_hostname: ~
 tesseract_domain: ~
 
 dns_proxy_host: ~
