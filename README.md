@@ -1,30 +1,13 @@
-# Ansible Collection - tesseract.network
+# tesseract-network
 
-Documentation for the collection.
+This project is an ansible collection for tesseract.network.
 
-- Tailscale subnet router not functioning
-- DNS not responding via tailscale unless ran as root
-- self-host ACME-DNS server: https://github.com/joohoi/acme-dns#self-hosted
+## Installation
 
-nmcli con mod "Wired connection 1" ipv4.addresses 192.168.1.8/24
-nmcli con mod "Wired connection 1" ipv4.gateway 192.168.1.1
-nmcli con mod "Wired connection 1" ipv4.dns "8.8.8.8","8.8.4.4"
-nmcli con mod "Wired connection 1" ipv4.method manual
-nmcli con down "Wired connection 1" && nmcli con up "Wired connection 1"
+To install the collection, run the command below. This will install the collection from the git repository to the default collection location. Thich is `~/.ansible/collections` on Linux and macOS, or `C:\Users\%USERNAME%\.ansible\collections` on Windows.
 
-mkdir -p /etc/systemd/resolved.conf.d
-nano /etc/systemd/resolved.conf.d/10-make-dns-work.conf
-[Resolve]
-DNSStubListener=no
-systemctl restart systemd-resolved
+    ansible-galaxy collection install git+https://github.com/ben16w/tesseract-network.git
 
-adduser admin
-usermod -aG sudo admin
+## License
 
-
-apt install sudo python3
-
-
-  tls {
-    resolvers 1.1.1.1
-  }
+This project is licensed under the Unlicense - see the LICENSE file for details
