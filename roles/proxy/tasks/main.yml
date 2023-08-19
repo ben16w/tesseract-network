@@ -82,7 +82,7 @@
       ansible.builtin.apt:
         deb: /tmp/xcaddy.deb
 
-    - name: Change file ownership, group and permissions
+    - name: Create tmp caddy directory.
       ansible.builtin.file:
         path: /tmp/caddy
         state: directory
@@ -111,7 +111,7 @@
         group: root
         mode: 0755
 
-- name: Change file ownership, group and permissions
+- name: Create caddy directory.
   ansible.builtin.file:
     path: /opt/caddy
     state: directory
@@ -119,7 +119,7 @@
     group: root
     mode: 0755
 
-- name: Change file ownership, group and permissions
+- name: Create caddy log directory.
   ansible.builtin.file:
     path: /var/log/caddy
     state: directory
@@ -127,7 +127,7 @@
     group: root
     mode: 0777
 
-- name: Template a Caddyfile
+- name: Template Caddyfile.
   notify: restart caddy
   ansible.builtin.template:
     src: templates/Caddyfile.j2
@@ -137,7 +137,7 @@
     group: root
     mode: 0644
 
-- name: Putcaddy systemd file into place.
+- name: Create caddy service unit.
   notify: restart caddy
   ansible.builtin.template:
     src: templates/caddy.service.j2
@@ -147,7 +147,7 @@
     group: root
     mode: 0644
 
-- name: Make sure caddy service unit is running and enabled.
+- name: Start and enable caddy service.
   ansible.builtin.systemd:
     state: started
     name: caddy
