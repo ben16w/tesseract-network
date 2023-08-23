@@ -3,4 +3,4 @@
   hosts: all
   vars:
   roles:
-    - role: dashboard
+    - role: proxy
