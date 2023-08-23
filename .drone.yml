@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: exec
-name: default
+name: push
 
 platform:
   os: linux
@@ -14,3 +14,28 @@ steps:
   - name: test-changed
     commands:
       - make test-changed
+
+trigger:
+  event:
+  - push
+
+---
+kind: pipeline
+type: exec
+name: pull_request
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+#   - name: lint
+#     commands:
+#       - make lint
+  - name: test
+    commands:
+      - make test
+
+trigger:
+  event:
+  - pull_request
