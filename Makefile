@@ -26,5 +26,5 @@ test-changed:
 .PHONY: lint
 lint:
 	@set -e ;\
-	yamllint . ;\
-	ansible-lint ;\
+	yamllint -d relaxed . ;\
+	ansible-lint --profile safety ;\

@@ -8,9 +8,9 @@ platform:
   arch: amd64
 
 steps:
-#   - name: lint
-#     commands:
-#       - make lint
+  - name: lint
+    commands:
+      - make lint
   - name: test
     commands:
       - make test
