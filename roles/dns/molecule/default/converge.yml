@@ -2,5 +2,7 @@
 - name: Converge
   hosts: all
   vars:
+    tesseract_hostname: "localhost"
+    tesseract_domain: ""
   roles:
     - role: dns
