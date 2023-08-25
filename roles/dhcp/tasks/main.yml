@@ -9,6 +9,7 @@
   ansible.builtin.package:
     name: isc-dhcp-server
     state: present
+    update_cache: true
 
 - name: Ensure destination for dhcp directory exists.
   ansible.builtin.file:
@@ -16,16 +17,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
-
-- name: Put the isc-dhcp-server configuration file into place.
-  ansible.builtin.template:
-    src: templates/dhcpd.conf.j2
-    dest: /etc/dhcp/dhcpd.conf
-    owner: root
-    group: root
-    mode: 0755
-  notify: restart isc-dhcp-server
+    mode: '0755'
 
 - name: Add interface config.
   ansible.builtin.lineinfile:
@@ -34,7 +26,7 @@
     line: INTERFACESv4="eth0 eth1"
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
   notify: restart isc-dhcp-server
 
 - name: Set dhcpd config file location.
@@ -44,7 +36,16 @@
     line: DHCPDv4_CONF=/etc/dhcp/dhcpd.conf
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
+  notify: restart isc-dhcp-server
+
+- name: Put the isc-dhcp-server configuration file into place.
+  ansible.builtin.template:
+    src: templates/dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: '0755'
   notify: restart isc-dhcp-server
 
 - name: Make sure the isc-dhcp-server systemd service unit is running and enabled.

@@ -4,5 +4,7 @@
   vars:
     tesseract_hostname: "localhost"
     tesseract_domain: ""
+    dns_records:
+      localhost: 127.0.0.1
   roles:
     - role: dns

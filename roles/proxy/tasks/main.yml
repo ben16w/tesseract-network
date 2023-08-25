@@ -4,7 +4,6 @@
   ansible.builtin.assert:
     that:
       - proxy_services is not none
-      - email_username is not none
       - tesseract_domain is not none
 
 - name: Setting architecture to amd64.
@@ -25,7 +24,7 @@
     line: 'net.core.rmem_max=2500000'
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 # Not going to work cos: go: /usr/bin/go /usr/lib/go /usr/share/go /usr/share/man/man1/go.1.gz
 - name: Check if go is installed.
@@ -38,10 +37,12 @@
   block:
 
     - name: Download go archive.
+      retries: 3
+      delay: 10
       ansible.builtin.get_url:
-        url: https://go.dev/dl/go1.19.5.linux-amd64.tar.gz
+        url: https://go.dev/dl/go1.21.0.linux-{{ download_arch }}.tar.gz
         dest: /tmp/go.tar.gz
-        mode: 0744
+        mode: '0744'
         owner: root
         group: root
 
@@ -59,7 +60,7 @@
     create: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Check if caddy is installed.
   ansible.builtin.stat:
@@ -71,12 +72,14 @@
   block:
 
     - name: Download and extract xcaddy archive into tmp directory.
+      retries: 3
+      delay: 10
       ansible.builtin.get_url:
-        url: "https://github.com/caddyserver/xcaddy/releases/download/v0.3.1/xcaddy_0.3.1_linux_{{ download_arch }}.deb"
+        url: "https://github.com/caddyserver/xcaddy/releases/download/v0.3.5/xcaddy_0.3.5_linux_{{ download_arch }}.deb"
         dest: /tmp/xcaddy.deb
         owner: root
         group: root
-        mode: 0644
+        mode: '0644'
 
     - name: Install a xcaddy package.
       ansible.builtin.apt:
@@ -88,7 +91,7 @@
         state: directory
         owner: root
         group: root
-        mode: 0777
+        mode: '0777'
 
     - name: Xcaddy build.
       environment:
@@ -109,7 +112,7 @@
         remote_src: true
         owner: root
         group: root
-        mode: 0755
+        mode: '0755'
 
 - name: Create caddy directory.
   ansible.builtin.file:
@@ -117,7 +120,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: '0755'
 
 - name: Create caddy log directory.
   ansible.builtin.file:
@@ -125,7 +128,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0777
+    mode: '0777'
 
 - name: Template Caddyfile.
   notify: restart caddy
@@ -135,7 +138,7 @@
     force: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Create caddy service unit.
   notify: restart caddy
@@ -145,7 +148,7 @@
     force: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Start and enable caddy service.
   ansible.builtin.systemd:

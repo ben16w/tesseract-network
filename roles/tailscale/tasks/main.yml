@@ -14,7 +14,7 @@
     line: 'net.ipv4.ip_forward=1'
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Enable IPV6 forwarding in the Linux kernel.
   notify: reload sysctl
@@ -25,15 +25,17 @@
     line: 'net.ipv6.conf.all.forwarding=1'
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Download tailscale install script.
+  retries: 3
+  delay: 10
   ansible.builtin.get_url:
     url: https://tailscale.com/install.sh
     dest: /tmp/tailscale_install.sh
     owner: root
     group: root
-    mode: 0744
+    mode: '0744'
     force: false
 
 - name: Install tailscale using downloaded script.
@@ -50,7 +52,7 @@
     line: "TS_DEBUG_MTU={{ tailscale_mtu }}"
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Remove Tailscale MTU if not set.
   notify: restart tailscale
@@ -61,7 +63,7 @@
     state: absent
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Make sure tailscale service unit is running and enabled.
   ansible.builtin.systemd:

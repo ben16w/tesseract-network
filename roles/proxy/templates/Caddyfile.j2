@@ -31,7 +31,9 @@
   debug
 {% endif %}
 
+{% if email_username is not none %}
   email {{ email_username }}
+{% endif %}
 
 {#
   order cache before rewrite

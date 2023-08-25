@@ -4,4 +4,6 @@
 tesseract_hostname: ~
 tesseract_domain: ~
 
+dns_records: ~
+
 blocky_version: 0.19
