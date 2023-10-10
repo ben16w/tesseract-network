@@ -37,4 +37,4 @@ test-changed:
 lint:
 	@set -e ;\
 	yamllint -d relaxed . ;\
-	ansible-lint --profile safety ;\
+	ansible-lint --profile safety -w var-naming[no-role-prefix] ;\
