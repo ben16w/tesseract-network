@@ -5,3 +5,9 @@
     name: blocky.service
     state: restarted
   listen: restart blocky
+
+- name: Restart systemd-resolved service.
+  ansible.builtin.service:
+    name: systemd-resolved.service
+    state: restarted
+  listen: restart systemd-resolved

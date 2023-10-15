@@ -18,6 +18,10 @@
   with_items: "{{ dns_records | dict2items }}"
   when: item.key != tesseract_hostname
 
+- name: Include OS specific tasks.
+  include_tasks: "{{ ansible_distribution }}.yml"
+  when: ansible_distribution == "Ubuntu"
+
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "x86_64"
