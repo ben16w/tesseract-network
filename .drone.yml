@@ -19,6 +19,7 @@ steps:
 
   - name: test-changed
     commands:
+      - git fetch origin
       - make test-changed
     when:
       branch:
