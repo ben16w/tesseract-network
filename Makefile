@@ -53,7 +53,7 @@ test-distros:
 .PHONY: test-changed
 test-changed:
 	@set -e ;\
-	roles="$$((git diff --name-only; git diff --name-only --cached; git diff --name-only main..HEAD) | grep "roles/" | cut -d '/' -f 1-2 | sort -u )" ;\
+	roles="$$((git diff --name-only $$(git merge-base HEAD origin/main); git diff --name-only;) | grep "roles/" | cut -d '/' -f 1-2 | sort -u )" ;\
 	for roledir in $${roles}; do \
 		moleculedir="$${roledir}/molecule" ;\
 		echo "Testing role: $${moleculedir}" ;\
