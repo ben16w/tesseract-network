@@ -17,6 +17,14 @@ steps:
     commands:
       - make lint
 
+  - name: test-changed
+    commands:
+      - make test-changed
+    when:
+      branch:
+        exclude:
+          - main
+
   - name: test
     commands:
       - make test
