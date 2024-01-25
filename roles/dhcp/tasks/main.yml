@@ -23,7 +23,7 @@
   ansible.builtin.lineinfile:
     path: /etc/default/isc-dhcp-server
     search_string: INTERFACESv4
-    line: INTERFACESv4="eth0 eth1"
+    line: INTERFACESv4="{{ dhcp_interface }}"
     owner: root
     group: root
     mode: '0644'

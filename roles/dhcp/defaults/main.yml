@@ -1,3 +1,4 @@
 ---
 
 dhcp_dns_host: ~
+dhcp_interface: "eth0"
