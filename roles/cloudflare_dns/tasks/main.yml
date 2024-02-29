@@ -11,6 +11,6 @@
     record: "{{ item.record }}}"
     type: "{{ item.type }}"
     value: "{{ item.value }}"
-    account_api_token: "{{ cloudflare_dns_api_token }}"
+    api_token: "{{ cloudflare_dns_api_token }}"
   with_items: "{{ cloudflare_dns_records }}"
   when: cloudflare_dns_records | length > 0
