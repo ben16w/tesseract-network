@@ -8,7 +8,7 @@
 - name: Create DNS records.
   community.general.cloudflare_dns:
     zone: "{{ cloudflare_dns_zone }}"
-    record: "{{ item.record }}}"
+    record: "{{ item.record }}"
     type: "{{ item.type }}"
     value: "{{ item.value }}"
     api_token: "{{ cloudflare_dns_api_token }}"
