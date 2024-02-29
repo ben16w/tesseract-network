@@ -2,10 +2,8 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - cloudflare_dns_api_key is not none
-      - cloudflare_dns_email is not none
+      - cloudflare_dns_api_token is not none
       - cloudflare_dns_zone is not none
-      - cloudflare_dns_records is not none
 
 - name: Create DNS records.
   community.general.cloudflare_dns:
@@ -13,7 +11,6 @@
     record: "{{ item.record }}}"
     type: "{{ item.type }}"
     value: "{{ item.value }}"
-    account_email: "{{ cloudflare_dns_email }}"
-    account_api_key: "{{ cloudflare_dns_api_key }}"
+    account_api_token: "{{ cloudflare_dns_api_token }}"
   with_items: "{{ cloudflare_dns_records }}"
   when: cloudflare_dns_records | length > 0

@@ -1,7 +1,6 @@
 ---
 
-cloudflare_dns_api_key: ~
-cloudflare_dns_email: ~
+cloudflare_dns_api_token: ~
 
 cloudflare_dns_zone: ~
 
