@@ -12,5 +12,5 @@
     type: "{{ item.type }}"
     value: "{{ item.value }}"
     api_token: "{{ cloudflare_dns_api_token }}"
-  with_items: "{{ cloudflare_dns_records }}"
+  loop: "{{ cloudflare_dns_records }}"
   when: cloudflare_dns_records | length > 0

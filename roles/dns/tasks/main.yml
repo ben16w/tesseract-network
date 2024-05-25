@@ -15,7 +15,7 @@
     owner: root
     group: root
     mode: '0644'
-  with_items: "{{ dns_records | dict2items }}"
+  loop: "{{ dns_records | dict2items }}"
   when: item.key != tesseract_hostname
 
 - name: Include OS specific tasks.
