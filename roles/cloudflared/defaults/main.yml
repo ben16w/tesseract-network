@@ -1,0 +1,4 @@
+---
+
+cloudflared_download_url: https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+cloudflared_token: ~

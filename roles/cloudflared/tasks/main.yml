@@ -1,0 +1,33 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - cloudflared_token is not none
+
+- name: Set architecture variable.
+  ansible.builtin.set_fact:
+    architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else '386' }}"
+
+- name: Set download URL variable.
+  ansible.builtin.set_fact:
+    download_url: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-{{ architecture }}.deb"
+
+- name: Download cloudflared.
+  ansible.builtin.get_url:
+    url: "{{ download_url }}"
+    dest: /tmp/cloudflared.deb
+
+- name: Install cloudflared.
+  ansible.builtin.apt:
+    deb: /tmp/cloudflared.deb
+
+- name: Install cloudflared service.
+  ansible.builtin.service:
+    name: cloudflared
+    state: started
+    enabled: yes
+    args:
+      - service
+      - install
+      - "{{ cloudflared_token }}"
