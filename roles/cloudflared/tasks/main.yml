@@ -17,6 +17,9 @@
   ansible.builtin.get_url:
     url: "{{ download_url }}"
     dest: /tmp/cloudflared.deb
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Install cloudflared.
   ansible.builtin.apt:
@@ -26,7 +29,7 @@
   ansible.builtin.service:
     name: cloudflared
     state: started
-    enabled: yes
+    enabled: true
     args:
       - service
       - install
