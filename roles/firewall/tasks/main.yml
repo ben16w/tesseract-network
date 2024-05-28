@@ -10,6 +10,7 @@
   ansible.builtin.apt:
     name: ufw
     state: present
+    update_cache: yes
 
 - name: Enable UFW.
   ansible.builtin.command:
