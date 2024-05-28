@@ -3,8 +3,8 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      firewall_rules is iterable
-      firewall_rules | length > 0
+      - firewall_rules is iterable
+      - firewall_rules | length > 0
 
 - name: Install UFW.
   ansible.builtin.apt:
