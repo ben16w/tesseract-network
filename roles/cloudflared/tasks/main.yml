@@ -1,10 +1,5 @@
 ---
 
-- name: Assert that all required inputs have been provided.
-  ansible.builtin.assert:
-    that:
-      - cloudflared_token is not none
-
 - name: Set architecture variable.
   ansible.builtin.set_fact:
     architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else '386' }}"
@@ -26,6 +21,7 @@
     deb: /tmp/cloudflared.deb
 
 - name: Install cloudflared service.
+  when: cloudflared_token is not none
   ansible.builtin.service:
     name: cloudflared
     state: started
