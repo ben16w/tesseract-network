@@ -20,13 +20,7 @@
   ansible.builtin.apt:
     deb: /tmp/cloudflared.deb
 
-- name: Install cloudflared service.
-  when: cloudflared_token is not none
-  ansible.builtin.service:
-    name: cloudflared
-    state: started
-    enabled: true
-    args:
-      - service
-      - install
-      - "{{ cloudflared_token }}"
+- name: Install cloudflared service
+  ansible.builtin.command:
+    cmd: cloudflared service install "{{ cloudflared_token }}"
+#    creates: /etc/systemd/system/cloudflared.service?
