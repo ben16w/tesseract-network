@@ -16,13 +16,15 @@
 
     - name: Listen on ports for testing.
       with_items: "{{ firewall_rules }}"
-      ansible.builtin.command: "nc -l -p {{ item.port }}"
+      ansible.builtin.command:
+        cmd: "nc -l -k -p {{ item.port }}"
       async: 1000
       poll: 0
 
     - name: Listen on denied ports ports for testing.
       with_items: "{{ testing_denied_ports }}"
-      ansible.builtin.command: "nc -l -p {{ item }}"
+      ansible.builtin.command: 
+        cmd: "nc -l -k -p {{ item }}"
       async: 1000
       poll: 0
 
@@ -54,7 +56,7 @@
     - name: Verify UFW is working.
       with_items: "{{ firewall_rules }}"
       ansible.builtin.wait_for:
-        host: localhost
+        host: molecule
         port: "{{ item.port }}"
         timeout: 1
         state: started
@@ -62,7 +64,7 @@
     - name: Verify that UFW is blocking denied ports.
       with_items: "{{ testing_denied_ports }}"
       ansible.builtin.wait_for:
-        host: localhost
+        host: molecule
         port: "{{ item }}"
         timeout: 1
         state: stopped

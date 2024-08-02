@@ -11,6 +11,7 @@
     update_cache: true
 
 - name: When firewall rules are provided, configure UFW.
+  when: firewall_rules | length > 0
   block:
     - name: Configure UFW rules.
       community.general.ufw:

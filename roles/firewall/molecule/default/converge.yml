@@ -3,7 +3,6 @@
   hosts: all
   vars:
     firewall_rules:
-      - rule: "allow"
-        port: "80"
+      - port: "80"
   roles:
     - role: firewall
