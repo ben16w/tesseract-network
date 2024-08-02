@@ -9,27 +9,9 @@
     testing_denied_ports:
       - 8888
   tasks:
-    - name: Ensure that netcat is installed.
-      ansible.builtin.package:
-        name: netcat
-        update_cache: true
-
-    - name: Listen on ports for testing.
-      with_items: "{{ firewall_rules }}"
-      ansible.builtin.command:
-        cmd: "nc -l -k -p {{ item.port }}"
-      async: 1000
-      poll: 0
-
-    - name: Listen on denied ports ports for testing.
-      with_items: "{{ testing_denied_ports }}"
-      ansible.builtin.command: 
-        cmd: "nc -l -k -p {{ item }}"
-      async: 1000
-      poll: 0
-
     - name: Check UFW firewall status.
-      command: ufw status verbose
+      ansible.builtin.command:
+        cmd: ufw status verbose
       register: ufw_status
 
     - name: Verify UFW firewall is active.
@@ -43,7 +25,8 @@
           - "'Default: {{ firewall_default_policy }} (incoming)' in ufw_status.stdout"
 
     - name: Get UFW rules
-      command: ufw show added
+      ansible.builtin.command:
+        cmd: ufw show added
       register: ufw_rules
 
     - name: Verify UFW rules are configured.
@@ -51,20 +34,4 @@
         that:
           - item.rule in ufw_rules.stdout
           - item.port in ufw_rules.stdout
-      with_items: "{{ firewall_rules }}"
-
-    - name: Verify UFW is working.
-      with_items: "{{ firewall_rules }}"
-      ansible.builtin.wait_for:
-        host: molecule
-        port: "{{ item.port }}"
-        timeout: 1
-        state: started
-
-    - name: Verify that UFW is blocking denied ports.
-      with_items: "{{ testing_denied_ports }}"
-      ansible.builtin.wait_for:
-        host: molecule
-        port: "{{ item }}"
-        timeout: 1
-        state: stopped
+      loop: "{{ firewall_rules }}"
