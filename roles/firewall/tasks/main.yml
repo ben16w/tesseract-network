@@ -6,17 +6,22 @@
       - firewall_rules is iterable
       - firewall_rules | length > 0
 
-- name: Install UFW.
-  ansible.builtin.apt:
+- name: Install UFW
+  ansible.builtin.package:
     name: ufw
-    state: present
     update_cache: true
-
-- name: Enable UFW.
-  ansible.builtin.command:
-    cmd: ufw --force enable
 
 - name: Configure UFW rules.
   with_items: "{{ firewall_rules }}"
   ansible.builtin.command:
     cmd: ufw {{ item.rule }} {{ item.port }}/{{ item.proto }}
+
+- name: Ensure UFW is enabled
+  community.general.ufw:
+    state: enabled
+    policy: allow
+
+- name: Set UFW to start on boot
+  ansible.builtin.command:
+    cmd: ufw enable
+  changed_when: false

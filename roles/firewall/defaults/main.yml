@@ -1,12 +1,9 @@
 ---
 
 firewall_rules: []
+    # - rule: "block"
+    # - rule: "allow"
+    #   interface: "tailscale0"
     # - rule: "allow"
     #   port: "22"
-    #   proto: "tcp"
-    # - rule: "allow"
-    #   port: "80"
-    #   proto: "tcp"
-    # - rule: "allow"
-    #   port: "443"
-    #   proto: "tcp"
+    #   interface: "eth0"

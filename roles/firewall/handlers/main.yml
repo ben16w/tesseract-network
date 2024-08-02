@@ -1,0 +1,7 @@
+---
+- name: Restart firewall.
+  listen: restart firewall
+  ansible.builtin.service:
+    name: ufw
+    state: restarted
+    enabled: true
