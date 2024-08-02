@@ -14,10 +14,11 @@
   block:
     - name: Configure UFW rules.
       community.general.ufw:
-        rule: "{{ item.rule | default("allow") }}"
-        port: "{{ item.port | default("omit) }}""
+        rule: "{{ item.rule | default('allow') }}"
+        port: "{{ item.port | default(omit) }}"
         interface: "{{ item.interface | default(omit) }}"
         direction: "{{ item.direction | default(omit) }}"
+        src: "{{ item.src | default(omit) }}"
         state: enabled
       loop: "{{ firewall_rules }}"
 
