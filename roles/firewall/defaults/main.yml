@@ -3,8 +3,6 @@
 firewall_default_policy: "deny"
 
 firewall_rules: []
-    # - rule: "allow"
-    #   interface: "tailscale0"
-    # - rule: "allow"
-    #   port: "22"
+    # - interface: "tailscale0"
+    # - port: "22"
     #   interface: "eth0"

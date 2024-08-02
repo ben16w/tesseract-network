@@ -12,16 +12,16 @@
 
 - name: When firewall rules are provided, configure UFW.
   block:
-    - name: Set default UFW policy
-      community.general.ufw:
-        policy: "{{ firewall_default_policy }}"
-        state: enabled
-
     - name: Configure UFW rules.
       community.general.ufw:
-        rule: "{{ item.rule }}"
-        port: "{{ item.port | default(omit) }}"
+        rule: "{{ item.rule | default("allow") }}"
+        port: "{{ item.port | default("omit) }}""
         interface: "{{ item.interface | default(omit) }}"
         direction: "{{ item.direction | default(omit) }}"
         state: enabled
       loop: "{{ firewall_rules }}"
+
+    - name: Set default UFW policy.
+      community.general.ufw:
+        policy: "{{ firewall_default_policy }}"
+        state: enabled

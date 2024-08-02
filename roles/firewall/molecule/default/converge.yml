@@ -5,7 +5,5 @@
     firewall_rules:
       - rule: "allow"
         port: "80"
-        proto: "tcp"
-
   roles:
     - role: firewall
