@@ -1,0 +1,6 @@
+---
+
+whalewall_rules: []
+  # - rule: allow
+  #   interface: "tailscale0"
+  #   port: "22"

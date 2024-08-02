@@ -1,0 +1,21 @@
+[Unit]
+Description=Whalewall - Firewall manager for Docker containers
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/usr/local/bin/whalewall
+Restart=always
+User=root
+Group=docker
+CapabilityBoundingSet=CAP_NET_ADMIN
+AmbientCapabilities=CAP_NET_ADMIN
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+
+[Install]
+WantedBy=multi-user.target

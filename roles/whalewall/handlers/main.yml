@@ -1,0 +1,7 @@
+---
+
+- name: Restart whalewall.
+  ansible.builtin.service:
+    name: whalewall
+    state: restarted
+  listen: restart whalewall

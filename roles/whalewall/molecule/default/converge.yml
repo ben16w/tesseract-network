@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    whalewall_rules:
+      - rule: allow
+        interface: "tailscale0"
+        port: "22"
+  roles:
+    - role: whalewall
