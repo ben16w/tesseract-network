@@ -1,49 +1,68 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    firewall_default_policy: "deny"
+    firewall_rules:
+      - rule: "allow"
+        port: "80"
+    testing_denied_ports:
+      - 8888
   tasks:
-  - name: Check UFW firewall status.
-    command: ufw status verbose
-    register: ufw_status
+    - name: Ensure that netcat is installed.
+      ansible.builtin.package:
+        name: netcat
+        update_cache: true
 
-  - name: Verify UFW firewall is active.
-    assert:
-      that:
-        - "'Status: active' in ufw_status.stdout"
-      fail_msg: "UFW firewall is not active"
-      success_msg: "UFW firewall is active"
+    - name: Listen on ports for testing.
+      with_items: "{{ firewall_rules }}"
+      ansible.builtin.command: "nc -l -p {{ item.port }}"
+      async: 1000
+      poll: 0
 
-  - name: Verify UFW default policy.
-    assert:
-      that:
-        - "'Default: {{ firewall_default_policy }} (incoming)' in ufw_status.stdout"
-      fail_msg: "UFW default policy is not set to {{ firewall_default_policy }}"
-      success_msg: "UFW default policy is set to {{ firewall_default_policy }}"
+    - name: Listen on denied ports ports for testing.
+      with_items: "{{ testing_denied_ports }}"
+      ansible.builtin.command: "nc -l -p {{ item }}"
+      async: 1000
+      poll: 0
 
-  - name: Verify UFW rules.
-    when: firewall_rules | length > 0
-    block:
-      - name: Get UFW rules
-        command: ufw show added
-        register: ufw_rules
+    - name: Check UFW firewall status.
+      command: ufw status verbose
+      register: ufw_status
 
-      - name: Verify UFW rules are configured.
-        assert:
-          that:
-            - "'{{ item }}' in ufw_rules.stdout"
-          with_items: "{{ firewall_rules }}"
-          fail_msg: "UFW rule '{{ item }}' is not configured"
-          success_msg: "UFW rule '{{ item }}' is configured"
+    - name: Verify UFW firewall is active.
+      assert:
+        that:
+          - "'Status: active' in ufw_status.stdout"
 
-          # - name: Verify UFW is working by communicating from localhost
-          #   command: nc -zv localhost {{ firewall_rules[0].port }}
-          #   register: ufw_communication
+    - name: Verify UFW default policy.
+      assert:
+        that:
+          - "'Default: {{ firewall_default_policy }} (incoming)' in ufw_status.stdout"
 
-          # - name: Verify UFW is working
-          #   assert:
-          #     that:
-          #       - ufw_communication.rc == 0
-          #     fail_msg: "UFW is not working"
-          #     success_msg: "UFW is working"
+    - name: Get UFW rules
+      command: ufw show added
+      register: ufw_rules
+
+    - name: Verify UFW rules are configured.
+      assert:
+        that:
+          - item.rule in ufw_rules.stdout
+          - item.port in ufw_rules.stdout
+      with_items: "{{ firewall_rules }}"
+
+    - name: Verify UFW is working.
+      with_items: "{{ firewall_rules }}"
+      ansible.builtin.wait_for:
+        host: localhost
+        port: "{{ item.port }}"
+        timeout: 1
+        state: started
+
+    - name: Verify that UFW is blocking denied ports.
+      with_items: "{{ testing_denied_ports }}"
+      ansible.builtin.wait_for:
+        host: localhost
+        port: "{{ item }}"
+        timeout: 1
+        state: stopped

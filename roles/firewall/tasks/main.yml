@@ -22,7 +22,7 @@
         state: enabled
       loop: "{{ firewall_rules }}"
 
-    - name: Set default UFW policy.
+    - name: Set default policy and enable UFW.
       community.general.ufw:
         policy: "{{ firewall_default_policy }}"
         state: enabled
