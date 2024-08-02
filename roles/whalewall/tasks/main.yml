@@ -10,24 +10,36 @@
 
 - name: Download Whalewall binary
   ansible.builtin.get_url:
-    url: "https://github.com/capnspacehook/whalewall/releases/latest/download/whalewall-linux-amd64.tar.gz"
+    url: "{{ whalewall_download_url }}"
     dest: "/tmp/whalewall.tar.gz"
     mode: '0644'
     user: root
     group: root
 
+- name: Ensure Whalewall directory exists in opt.
+  ansible.builtin.file:
+    path: /opt/whalewall
+    state: directory
+    mode: '0755'
+    user: root
+    group: docker
+
 - name: Extract Whalewall binary
   unarchive:
-    src: "/tmp/whalewall.tar.gz"
-    dest: "/usr/local/bin/"
+    src: /tmp/whalewall.tar.gz
+    dest: /opt/whalewall
     remote_src: true
-    creates: "/usr/local/bin/whalewall"
+    creates: /opt/whalewall/whalewall
 
-- name: Set group ownership to docker for Whalewall binary
-  command: chgrp docker /usr/local/bin/whalewall
+- name: Set permissions for Whalewall binary.
+  ansible.builtin.file:
+    src: /opt/whalewall/whalewall
+    mode: '0755'
+    user: root
+    group: docker
 
-- name: Set NET_ADMIN capability for Whalewall binary
-  command: setcap 'cap_net_admin=+ep' /usr/local/bin/whalewall
+- name: Set NET_ADMIN capability for Whalewall binary.
+  command: setcap 'cap_net_admin=+ep' /opt/whalewall/whalewall
 
 - name: Template Whalewall service file.
   template:
@@ -37,12 +49,8 @@
     user: root
     group: root
 
-- name: Reload systemd daemon
-  systemd:
-    daemon_reload: yes
-
-- name: Enable and start Whalewall service
+- name: Enable and start Whalewall service.
   systemd:
     name: whalewall
-    enabled: yes
+    enabled: true
     state: started

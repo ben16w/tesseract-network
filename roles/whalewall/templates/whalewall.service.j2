@@ -4,7 +4,7 @@ After=network.target docker.service
 Requires=docker.service
 
 [Service]
-ExecStart=/usr/local/bin/whalewall
+ExecStart=/opt/whalewall/whalewall
 Restart=always
 User=root
 Group=docker

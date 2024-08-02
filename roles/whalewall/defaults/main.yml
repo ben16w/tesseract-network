@@ -4,3 +4,6 @@ whalewall_rules: []
   # - rule: allow
   #   interface: "tailscale0"
   #   port: "22"
+
+whalewall_download_url: "https://github.com/capnspacehook/whalewall/\
+  releases/latest/download/whalewall-linux-amd64.tar.gz"
