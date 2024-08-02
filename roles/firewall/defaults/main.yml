@@ -1,7 +1,8 @@
 ---
 
+firewall_default_policy: "deny"
+
 firewall_rules: []
-    # - rule: "block"
     # - rule: "allow"
     #   interface: "tailscale0"
     # - rule: "allow"
