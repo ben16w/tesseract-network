@@ -3,9 +3,13 @@
   hosts: all
   vars:
     whalewall_rules:
-      - rule: allow
-        interface: "tailscale0"
-        port: "22"
+      mapped_ports:
+        localhost:
+          allow: false
+        external:
+          allow: true
+          ips:
+            - "192.168.1.0/24"
     whalewall_version: "0.2.3"
   roles:
     - role: whalewall
