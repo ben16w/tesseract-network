@@ -1,4 +1,8 @@
 ---
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - whalewall_version is not none
 
 - name: Ensure required packages are installed
   ansible.builtin.package:
