@@ -19,3 +19,9 @@
       ansible.builtin.service:
         name: docker
         state: started
+
+    - name: Start Hello World container.
+      ansible.builtin.command:
+        cmd: docker run -d --rm -p 80:8000 crccheck/hello-world
+      register: hello_world
+      changed_when: hello_world.rc == 0

@@ -4,7 +4,7 @@
     that:
       - whalewall_version is not none
 
-- name: Ensure required packages are installed
+- name: Ensure required packages are installed.
   ansible.builtin.package:
     name:
       - curl
@@ -12,7 +12,7 @@
       - nftables
     update_cache: true
 
-- name: Download Whalewall binary
+- name: Download Whalewall binary.
   ansible.builtin.get_url:
     url: "{{ whalewall_download_url }}"
     dest: "/tmp/whalewall.tar.gz"
@@ -28,7 +28,7 @@
     owner: root
     group: root
 
-- name: Extract Whalewall binary
+- name: Extract Whalewall binary.
   ansible.builtin.unarchive:
     src: /tmp/whalewall.tar.gz
     dest: /opt/whalewall
@@ -51,22 +51,27 @@
     group: root
 
 - name: Enable and start Whalewall service.
-  ansible.builtin.systemd:
+  ansible.builtin.service:
     name: whalewall
     enabled: true
     state: started
 
-- name: Get list of all running containers
-  cansible.builtin.ommand:
-    cmd: docker ps -q
-  register: running_containers
 
-- name: Set Whalewall labels for all running containers
-  ansible.builtin.command:
-    cmd: >
-      docker container update
-      --label whalewall.enabled=true
-      --label whalewall.rules="{{ whalewall_rules | to_json }}"
-      {{ item }}
-  loop: "{{ running_containers.stdout_lines }}"
-  when: running_containers.stdout_lines | length > 0
+- name: If Whalewall rules are provided.
+  when: whalewall_rules is not none
+  block:
+    - name: Get list of all running containers.
+      ansible.builtin.command:
+        cmd: docker ps -q
+      register: running_containers
+      changed_when: false
+
+    - name: Set Whalewall labels for all running containers
+      ansible.builtin.command:
+        cmd: >
+          docker container update
+          --label whalewall.enabled=true
+          --label whalewall.rules="{{ whalewall_rules | to_json }}"
+          {{ item }}
+      loop: "{{ running_containers.stdout_lines }}"
+      when: running_containers.stdout_lines | length > 0
