@@ -26,7 +26,7 @@
     state: directory
     mode: '0755'
     owner: root
-    group: docker
+    group: root
 
 - name: Extract Whalewall binary
   ansible.builtin.unarchive:
@@ -40,7 +40,7 @@
     path: /opt/whalewall/whalewall
     mode: '0755'
     owner: root
-    group: docker
+    group: root
 
 - name: Template Whalewall service file.
   ansible.builtin.template:
@@ -55,3 +55,18 @@
     name: whalewall
     enabled: true
     state: started
+
+- name: Get list of all running containers
+  cansible.builtin.ommand:
+    cmd: docker ps -q
+  register: running_containers
+
+- name: Set Whalewall labels for all running containers
+  ansible.builtin.command:
+    cmd: >
+      docker container update
+      --label whalewall.enabled=true
+      --label whalewall.rules="{{ whalewall_rules | to_json }}"
+      {{ item }}
+  loop: "{{ running_containers.stdout_lines }}"
+  when: running_containers.stdout_lines | length > 0
