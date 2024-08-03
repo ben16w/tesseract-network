@@ -1,0 +1,21 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Download docker install script.
+      retries: 3
+      delay: 10
+      ansible.builtin.get_url:
+        url: https://get.docker.com
+        dest: /tmp/docker_install.sh
+        mode: '0744'
+
+    - name: Install docker.
+      ansible.builtin.command:
+        cmd: bash /tmp/docker_install.sh
+        creates: /usr/bin/docker
+
+    - name: Ensure docker has started.
+      ansible.builtin.service:
+        name: docker
+        state: started

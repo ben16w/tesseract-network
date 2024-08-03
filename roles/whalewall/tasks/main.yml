@@ -13,7 +13,7 @@
     url: "{{ whalewall_download_url }}"
     dest: "/tmp/whalewall.tar.gz"
     mode: '0644'
-    user: root
+    owner: root
     group: root
 
 - name: Ensure Whalewall directory exists in opt.
@@ -21,11 +21,11 @@
     path: /opt/whalewall
     state: directory
     mode: '0755'
-    user: root
+    owner: root
     group: docker
 
 - name: Extract Whalewall binary
-  unarchive:
+  ansible.builtin.unarchive:
     src: /tmp/whalewall.tar.gz
     dest: /opt/whalewall
     remote_src: true
@@ -33,24 +33,21 @@
 
 - name: Set permissions for Whalewall binary.
   ansible.builtin.file:
-    src: /opt/whalewall/whalewall
+    path: /opt/whalewall/whalewall
     mode: '0755'
-    user: root
+    owner: root
     group: docker
 
-- name: Set NET_ADMIN capability for Whalewall binary.
-  command: setcap 'cap_net_admin=+ep' /opt/whalewall/whalewall
-
 - name: Template Whalewall service file.
-  template:
+  ansible.builtin.template:
     src: whalewall.service.j2
     dest: /etc/systemd/system/whalewall.service
     mode: '0644'
-    user: root
+    owner: root
     group: root
 
 - name: Enable and start Whalewall service.
-  systemd:
+  ansible.builtin.systemd:
     name: whalewall
     enabled: true
     state: started
