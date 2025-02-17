@@ -4,17 +4,17 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
-    - name: Set custom variables
+    - name: Set verify variables.
       ansible.builtin.set_fact:
         tesseract_hostname: "localhost"
 
-    - name: Check blocky service is running.
+    - name: Check Blocky service is running.
       ansible.builtin.systemd:
         name: blocky
         state: started
         enabled: true
 
-    - name: Check blocky is listening on http port.
+    - name: Check Blocky is listening on HTTP port.
       ansible.builtin.uri:
         url: http://{{ tesseract_hostname }}:{{ blocky_http_port }}
         status_code: 200
@@ -23,12 +23,42 @@
       retries: 5
       delay: 5
 
-    # make dns query for goole.com
-    - name: Check blocky is resolving google.com
+    - name: Perform a DNS query using Blocky API.
       ansible.builtin.uri:
-        url: http://{{ tesseract_hostname }}:{{ blocky_http_port }}/query?domain=google.com
-        status_code: 200
-      register: blocky_status
-      until: blocky_status.status == 200
-      retries: 5
-      delay: 5
+        url: "http://{{ tesseract_hostname }}:{{ blocky_http_port }}/api/query"
+        method: POST
+        body_format: json
+        body:
+          query: "google.com"
+          type: "A"
+        headers:
+          Content-Type: "application/json"
+        return_content: true
+      register: dns_response
+      failed_when: dns_response.status != 200
+
+    - name: Check DNS query response was successful.
+      ansible.builtin.assert:
+        that:
+          - dns_response.json.responseType == "RESOLVED"
+          - dns_response.json.returnCode == "NOERROR"
+
+    - name: Perform a DNS query to a blocked domain using Blocky API.
+      ansible.builtin.uri:
+        url: "http://{{ tesseract_hostname }}:{{ blocky_http_port }}/api/query"
+        method: POST
+        body_format: json
+        body:
+          query: "trustsoft.com"
+          type: "A"
+        headers:
+          Content-Type: "application/json"
+        return_content: true
+      register: dns_response
+      failed_when: dns_response.status != 200
+
+    - name: Check DNS query response was blocked.
+      ansible.builtin.assert:
+        that:
+          - dns_response.json.responseType == "BLOCKED"
+          - dns_response.json.returnCode == "NOERROR"

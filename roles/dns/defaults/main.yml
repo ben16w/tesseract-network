@@ -10,4 +10,3 @@ blocky_http_port: 4000
 blocky_dns_records: ~
 blocky_denylists: |
   - https://github.com/fabriziosalmi/blacklists/releases/download/latest/blacklist.txt
-  - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
