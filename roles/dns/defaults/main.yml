@@ -1,9 +1,14 @@
 ---
 
-# tesseract_username: ~
 tesseract_hostname: ~
 tesseract_domain: ~
 
-dns_records: ~
+blocky_version: ~ # e.g. 0.19
 
-blocky_version: 0.19
+blocky_dns_port: 53
+blocky_http_port: 4000
+
+blocky_dns_records: ~
+blocky_denylists: |
+  - https://github.com/fabriziosalmi/blacklists/releases/download/latest/blacklist.txt
+  - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts

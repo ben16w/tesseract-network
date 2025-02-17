@@ -4,3 +4,28 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
+
+    - name: Check blocky service is running.
+      ansible.builtin.systemd:
+        name: blocky
+        state: started
+        enabled: true
+
+    - name: Check blocky is listening on http port.
+      ansible.builtin.uri:
+        url: http://{{ tesseract_hostname }}:{{ blocky_http_port }}
+        status_code: 200
+      register: blocky_status
+      until: blocky_status.status == 200
+      retries: 5
+      delay: 5
+
+    # make dns query for goole.com
+    - name: Check blocky is resolving google.com
+      ansible.builtin.uri:
+        url: http://{{ tesseract_hostname }}:{{ blocky_http_port }}/query?domain=google.com
+        status_code: 200
+      register: blocky_status
+      until: blocky_status.status == 200
+      retries: 5
+      delay: 5
