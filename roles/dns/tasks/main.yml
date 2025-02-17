@@ -4,7 +4,6 @@
   ansible.builtin.assert:
     that:
       - tesseract_hostname is not none
-      - tesseract_domain is not none
       - blocky_dns_records is not none
       - blocky_version is not none
 

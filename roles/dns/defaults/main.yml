@@ -1,7 +1,6 @@
 ---
 
 tesseract_hostname: ~
-tesseract_domain: ~
 
 blocky_version: ~ # e.g. 0.19
 

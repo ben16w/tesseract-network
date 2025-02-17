@@ -4,6 +4,9 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
+    - name: Set custom variables
+      ansible.builtin.set_fact:
+        tesseract_hostname: "localhost"
 
     - name: Check blocky service is running.
       ansible.builtin.systemd:
