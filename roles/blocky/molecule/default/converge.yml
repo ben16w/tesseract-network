@@ -7,4 +7,4 @@
       localhost: 127.0.0.1
     blocky_version: "0.25"
   roles:
-    - role: dns
+    - role: blocky
