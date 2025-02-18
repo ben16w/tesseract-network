@@ -4,7 +4,7 @@ ports:
 upstreams:
   groups:
     default:
-      - https://dns.cloudflare.com # cloudflare
+      - https://cloudflare-dns.com/dns-query # cloudflare
       - https://dns.nextdns.io # nextdns
       - 94.140.14.140 # adguard-dns
       - 46.182.19.48 # digitalcourage
@@ -16,6 +16,11 @@ blocking:
   clientGroupsBlock:
     default:
       - main
+  loading:
+    downloads:
+      timeout: 4m
+      attempts: 5
+      cooldown: 10s
 customDNS:
   customTTL: 1h
   mapping:
