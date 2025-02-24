@@ -19,7 +19,8 @@
   when: item.key != tesseract_hostname
 
 - name: Include OS specific tasks.
-  include_tasks: "{{ ansible_distribution }}.yml"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
   when: ansible_distribution == "Ubuntu"
 
 - name: Setting architecture to amd64.

@@ -82,23 +82,28 @@
   when: "'Logged out' in result.stdout"
   ansible.builtin.command:
     cmd: tailscale up --authkey "{{ tailscale_auth_key }}"
+  changed_when: true
 
 - name: Set tailscale accept-dns.
   when: tailscale_accept_dns is false
   ansible.builtin.command:
     cmd: tailscale set --accept-dns=false
+  changed_when: true
 
 - name: Set tailscale advertise-routes.
   when: tailscale_advertise_routes is not none
   ansible.builtin.command:
     cmd: tailscale set --advertise-routes={{ tailscale_advertise_routes }}
+  changed_when: true
 
 - name: Set tailscale advertise-exit-node.
   when: tailscale_advertise_exit_node is true
   ansible.builtin.command:
     cmd: tailscale set --advertise-exit-node
+  changed_when: true
 
 - name: Set tailscale ssh.
   when: tailscale_ssh is true
   ansible.builtin.command:
     cmd: tailscale set --ssh
+  changed_when: true

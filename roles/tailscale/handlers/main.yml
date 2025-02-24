@@ -4,6 +4,7 @@
   listen: reload sysctl
   ansible.builtin.command:
     cmd: sysctl -p /etc/sysctl.conf
+  changed_when: true
 
 - name: Restart Tailscale.
   listen: restart tailscale
