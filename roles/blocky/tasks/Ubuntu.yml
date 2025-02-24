@@ -1,7 +1,7 @@
 ---
 
 - name: Ensure systemd-resolved.conf is set correctly
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/resolved.conf
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
