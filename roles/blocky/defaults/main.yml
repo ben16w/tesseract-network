@@ -1,0 +1,18 @@
+---
+
+tesseract_hostname: ~
+
+blocky_version: ~ # e.g. 0.25
+
+blocky_dns_port: 53
+blocky_http_port: 4000
+
+blocky_dns_records: ~
+blocky_denylists: |
+  - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+  # - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-only/hosts
+  # - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/gambling-only/hosts
+  # - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn-only/hosts
+  # - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/social-only/hosts
+  # - https://github.com/fabriziosalmi/blacklists/releases/download/latest/blacklist.txt
+  # - http://sbc.io/hosts/hosts # StevenBlack hosts alternative source

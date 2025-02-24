@@ -3,8 +3,8 @@
   hosts: all
   vars:
     tesseract_hostname: "localhost"
-    tesseract_domain: ""
-    dns_records:
+    blocky_dns_records:
       localhost: 127.0.0.1
+    blocky_version: "0.25"
   roles:
-    - role: dns
+    - role: blocky

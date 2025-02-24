@@ -1,0 +1,33 @@
+ports:
+  dns: {{ blocky_dns_port }}
+  http: {{ blocky_http_port }}
+upstreams:
+  groups:
+    default:
+      - https://cloudflare-dns.com/dns-query # cloudflare
+      - https://dns.nextdns.io # nextdns
+      - 94.140.14.140 # adguard-dns
+      - 46.182.19.48 # digitalcourage
+      - https://dnsforge.de/dns-query # dnsforge
+blocking:
+  denylists:
+    main:
+      {{ blocky_denylists | indent(6) }}
+  clientGroupsBlock:
+    default:
+      - main
+  loading:
+    downloads:
+      timeout: 4m
+      attempts: 5
+      cooldown: 10s
+customDNS:
+  customTTL: 1h
+  mapping:
+{%  for record, ip in blocky_dns_records.items() %}
+    {{ record }}: {{ ip }}
+{%  endfor %}
+queryLog:
+  type: csv
+  target: /var/log/blocky
+  logRetentionDays: 7

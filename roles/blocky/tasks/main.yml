@@ -4,8 +4,8 @@
   ansible.builtin.assert:
     that:
       - tesseract_hostname is not none
-      - tesseract_domain is not none
-      - dns_records is not none
+      - blocky_dns_records is not none
+      - blocky_version is not none
 
 - name: Add records to /etc/hosts.
   ansible.builtin.lineinfile:
@@ -15,7 +15,7 @@
     owner: root
     group: root
     mode: '0644'
-  loop: "{{ dns_records | dict2items }}"
+  loop: "{{ blocky_dns_records | dict2items }}"
   when: item.key != tesseract_hostname
 
 - name: Include OS specific tasks.
@@ -37,7 +37,7 @@
   retries: 3
   delay: 10
   ansible.builtin.get_url:
-    url: "https://github.com/0xERR0R/blocky/releases/download/v{{ blocky_version }}/blocky_{{ blocky_version }}_Linux_{{ download_arch }}.tar.gz"
+    url: "https://github.com/0xERR0R/blocky/releases/download/v{{ blocky_version }}/blocky_v{{ blocky_version }}_Linux_{{ download_arch }}.tar.gz"
     dest: /tmp/blocky.tar.gz
     owner: root
     group: root
