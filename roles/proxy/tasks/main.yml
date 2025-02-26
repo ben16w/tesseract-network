@@ -37,14 +37,16 @@
   block:
 
     - name: Download go archive.
-      retries: 3
-      delay: 10
       ansible.builtin.get_url:
         url: https://go.dev/dl/go1.21.0.linux-{{ download_arch }}.tar.gz
         dest: /tmp/go.tar.gz
         mode: '0744'
         owner: root
         group: root
+      register: download_go
+      retries: 5
+      delay: 10
+      until: download_go is succeeded
 
     - name: Extract go archive into /usr/local/go.
       ansible.builtin.unarchive:
@@ -72,14 +74,16 @@
   block:
 
     - name: Download and extract xcaddy archive into tmp directory.
-      retries: 3
-      delay: 10
       ansible.builtin.get_url:
         url: "https://github.com/caddyserver/xcaddy/releases/download/v0.3.5/xcaddy_0.3.5_linux_{{ download_arch }}.deb"
         dest: /tmp/xcaddy.deb
         owner: root
         group: root
         mode: '0644'
+      register: download_xcaddy
+      retries: 5
+      delay: 10
+      until: download_xcaddy is succeeded
 
     - name: Install a xcaddy package.
       ansible.builtin.apt:
