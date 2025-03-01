@@ -34,14 +34,16 @@
   when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
 
 - name: Downloading blocky.
-  retries: 3
-  delay: 10
   ansible.builtin.get_url:
     url: "https://github.com/0xERR0R/blocky/releases/download/v{{ blocky_version }}/blocky_v{{ blocky_version }}_Linux_{{ download_arch }}.tar.gz"
     dest: /tmp/blocky.tar.gz
     owner: root
     group: root
     mode: '0755'
+  register: download_blocky
+  retries: 5
+  delay: 10
+  until: download_blocky is succeeded
 
 - name: Create blocky logs directory.
   ansible.builtin.file:

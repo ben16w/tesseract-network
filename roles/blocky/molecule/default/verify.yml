@@ -28,9 +28,9 @@
         url: http://{{ tesseract_hostname }}:{{ blocky_http_port }}
         status_code: 200
       register: blocky_status
+      retries: 5
+      delay: 10
       until: blocky_status.status == 200
-      retries: 10
-      delay: 5
 
     - name: Perform a DNS query using Blocky API.
       ansible.builtin.uri:
