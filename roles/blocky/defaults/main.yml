@@ -8,6 +8,11 @@ blocky_dns_port: 53
 blocky_http_port: 4000
 
 blocky_dns_records: ~
+# e.g.
+# blocky_dns_records:
+#   - record: localhost
+#     value: 127.0.0.1
+
 blocky_denylists: |
   - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
   # - https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-only/hosts

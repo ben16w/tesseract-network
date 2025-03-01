@@ -7,16 +7,16 @@
       - blocky_dns_records is not none
       - blocky_version is not none
 
-- name: Add records to /etc/hosts.
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    search_string: "{{ item.key }}"
-    line: "{{ item.value }} {{ item.key }}"
-    owner: root
-    group: root
-    mode: '0644'
-  loop: "{{ blocky_dns_records | dict2items }}"
-  when: item.key != tesseract_hostname
+# - name: Add records to /etc/hosts.
+#   ansible.builtin.lineinfile:
+#     path: /etc/hosts
+#     search_string: "{{ item.record }}"
+#     line: "{{ item.value }} {{ item.record }}"
+#     owner: root
+#     group: root
+#     mode: '0644'
+#   loop: "{{ blocky_dns_records }}"
+#   when: item.record != tesseract_hostname
 
 - name: Include OS specific tasks.
   ansible.builtin.include_tasks:

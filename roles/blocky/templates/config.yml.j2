@@ -24,9 +24,9 @@ blocking:
 customDNS:
   customTTL: 1h
   mapping:
-{%  for record, ip in blocky_dns_records.items() %}
-    {{ record }}: {{ ip }}
-{%  endfor %}
+{% for record in blocky_dns_records %}
+    {{ record.record }}: {{ record.value }}
+{% endfor %}
 queryLog:
   type: csv
   target: /var/log/blocky
