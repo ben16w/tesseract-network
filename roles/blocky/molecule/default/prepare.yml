@@ -1,0 +1,9 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Install dnsutils for dig.
+      ansible.builtin.apt:
+        name: dnsutils
+        state: present
+        update_cache: true

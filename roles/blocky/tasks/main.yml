@@ -10,13 +10,15 @@
 - name: Add records to /etc/hosts.
   ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: "{{ item.key }}"
-    line: "{{ item.value }} {{ item.key }}"
+    search_string: "{{ item.record }}"
+    line: "{{ item.value }} {{ item.record }}"
     owner: root
     group: root
     mode: '0644'
-  loop: "{{ blocky_dns_records | dict2items }}"
-  when: item.key != tesseract_hostname
+  loop: "{{ blocky_dns_records }}"
+  when:
+    - item.record != tesseract_hostname
+    - ansible_virtualization_type != "docker"
 
 - name: Include OS specific tasks.
   ansible.builtin.include_tasks:

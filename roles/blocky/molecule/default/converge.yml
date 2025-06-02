@@ -4,7 +4,10 @@
   vars:
     tesseract_hostname: "localhost"
     blocky_dns_records:
-      localhost: 127.0.0.1
+      - record: localhost
+        value: 127.0.0.1
+      - record: test.test
+        value: 192.168.99.99
     blocky_version: "0.25"
   roles:
     - role: blocky
