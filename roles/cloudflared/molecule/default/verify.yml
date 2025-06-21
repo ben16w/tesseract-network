@@ -1,0 +1,10 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+  tasks:
+
+    - name: Ensure cloudflared is installed and executable
+      ansible.builtin.command: "cloudflared --version"
+      changed_when: false

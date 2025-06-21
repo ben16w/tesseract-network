@@ -86,7 +86,7 @@
       register: dns_response
       failed_when: dns_response.status != 200
 
-    - name: Check the DNS query response was blocked.
+    - name: Check the DNS query response was blocked again.
       ansible.builtin.assert:
         that:
           - dns_response.json.responseType == "BLOCKED"

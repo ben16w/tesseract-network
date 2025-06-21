@@ -1,0 +1,39 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - cloudflared_version is not none
+
+- name: Set architecture variable for amd64.
+  ansible.builtin.set_fact:
+    architecture: "amd64"
+  when: ansible_architecture == "x86_64"
+
+- name: Set architecture variable for arm64.
+  ansible.builtin.set_fact:
+    architecture: "arm64"
+  when: ansible_architecture == "aarch64"
+
+- name: Fail if architecture is unsupported.
+  ansible.builtin.fail:
+    msg: "Unsupported architecture: {{ ansible_architecture }}"
+  when: architecture is not defined
+
+- name: Download cloudflared.
+  ansible.builtin.get_url:
+    url: "https://github.com/cloudflare/cloudflared/releases/download/{{ cloudflared_version }}/cloudflared-linux-{{ architecture }}.deb"
+    dest: /tmp/cloudflared.deb
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install cloudflared.
+  ansible.builtin.apt:
+    deb: /tmp/cloudflared.deb
+
+- name: Install cloudflared service
+  when: cloudflared_token is not none
+  ansible.builtin.command:
+    cmd: cloudflared service install "{{ cloudflared_token }}"
+    creates: /etc/systemd/system/cloudflared.service

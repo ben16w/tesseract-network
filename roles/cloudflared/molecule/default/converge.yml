@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    cloudflared_version: "2025.6.1"
+  roles:
+    - role: cloudflared
