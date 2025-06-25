@@ -32,6 +32,18 @@
       delay: 10
       until: blocky_status.status == 200
 
+    - name: Perform a DNS query to the test.test domain using CLI.
+      ansible.builtin.command:
+        cmd: "dig +short test.test @localhost"
+      register: cli_dns_response
+      failed_when: cli_dns_response.rc != 0
+      changed_when: false
+
+    - name: Check the DNS query response is 192.168.99.99.
+      ansible.builtin.assert:
+        that:
+          - cli_dns_response.stdout.strip() == "192.168.99.99"
+
     - name: Perform a DNS query using Blocky API.
       ansible.builtin.uri:
         url: "http://{{ tesseract_hostname }}:{{ blocky_http_port }}/api/query"
@@ -47,6 +59,26 @@
       failed_when: dns_response.status != 200
 
     - name: Check DNS query response was successful.
+      ansible.builtin.assert:
+        that:
+          - dns_response.json.responseType == "RESOLVED"
+          - dns_response.json.returnCode == "NOERROR"
+
+    - name: Perform a DNS query to an allowed domain using Blocky API.
+      ansible.builtin.uri:
+        url: "http://{{ tesseract_hostname }}:{{ blocky_http_port }}/api/query"
+        method: POST
+        body_format: json
+        body:
+          query: "www.basnt.com"
+          type: "A"
+        headers:
+          Content-Type: "application/json"
+        return_content: true
+      register: dns_response
+      failed_when: dns_response.status != 200
+
+    - name: Check the DNS query response for allowed domain.
       ansible.builtin.assert:
         that:
           - dns_response.json.responseType == "RESOLVED"
@@ -91,15 +123,3 @@
         that:
           - dns_response.json.responseType == "BLOCKED"
           - dns_response.json.returnCode == "NOERROR"
-
-    - name: Perform a DNS query to the test.test domain using CLI.
-      ansible.builtin.command:
-        cmd: "dig +short test.test @localhost"
-      register: cli_dns_response
-      failed_when: cli_dns_response.rc != 0
-      changed_when: false
-
-    - name: Check the DNS query response is 192.168.99.99.
-      ansible.builtin.assert:
-        that:
-          - cli_dns_response.stdout.strip() == "192.168.99.99"

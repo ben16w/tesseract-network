@@ -6,6 +6,7 @@
       - tesseract_hostname is not none
       - blocky_dns_records is not none
       - blocky_version is not none
+      - blocky_allowed_domains is not none
 
 - name: Add records to /etc/hosts.
   ansible.builtin.lineinfile:

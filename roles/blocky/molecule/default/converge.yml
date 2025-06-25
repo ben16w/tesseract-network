@@ -9,5 +9,8 @@
       - record: test.test
         value: 192.168.99.99
     blocky_version: "0.25"
+    blocky_allowed_domains:
+      - "allowed.com"
+      - www.basnt.com
   roles:
     - role: blocky
