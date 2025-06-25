@@ -11,6 +11,6 @@
     blocky_version: "0.25"
     blocky_allowed_domains:
       - "allowed.com"
-      - www.basnt.com
+      - anstrex.com
   roles:
     - role: blocky

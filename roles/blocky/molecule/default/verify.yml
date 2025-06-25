@@ -70,7 +70,7 @@
         method: POST
         body_format: json
         body:
-          query: "www.basnt.com"
+          query: "anstrex.com"
           type: "A"
         headers:
           Content-Type: "application/json"
