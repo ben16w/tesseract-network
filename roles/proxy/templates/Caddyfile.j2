@@ -9,12 +9,12 @@
   }
 
 {% if proxy_http_only is false %}
-  {%- if proxy_cloudflare_api_token is not none %}
+  {% if proxy_cloudflare_api_token is not none %}
   acme_dns cloudflare {{ proxy_cloudflare_api_token }}
-  {%- endif %}
-  {%- if proxy_acme_staging is true %}
+  {% endif %}
+  {% if proxy_acme_staging is true %}
   acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-  {%- endif %}
+  {% endif %}
 {% else %}
   auto_https off
 {% endif %}
@@ -37,24 +37,24 @@
 }
 
 {% for service in proxy_services %}
-  {%- if service.subdomain is none %}
-    {%- if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ tesseract_domain }} {
-  {%- else %}
-    {%- if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ tesseract_domain }} {
-  {%- endif %}
+  {% if service.subdomain is none %}
+    {% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ tesseract_domain }} {
+  {% else %}
+    {% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ tesseract_domain }} {
+  {% endif %}
     {# 
     {% if service.cache is defined and service.cache is true %}
       cache
     {% endif %}
     #}
     reverse_proxy {{ service.target }}
-    {%- if service.compress | default(true) %}
+    {% if service.compress | default(true) %}
     encode gzip
-    {%- endif %}
-    {%- if service.http1 is defined and service.http1 is true %}
+    {% endif %}
+    {% if service.http1 is defined and service.http1 is true %}
     tls {
       alpn http/1.1
     }
-    {%- endif %}
+    {% endif %}
   }
 {% endfor %}
