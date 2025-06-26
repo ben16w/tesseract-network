@@ -64,6 +64,14 @@
     group: root
     mode: '0644'
 
+- name: Create caddy directory.
+  ansible.builtin.file:
+    path: /opt/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Check if caddy is installed.
   ansible.builtin.stat:
     path: /opt/caddy/caddy
@@ -119,14 +127,6 @@
         owner: root
         group: root
         mode: '0755'
-
-- name: Create caddy directory.
-  ansible.builtin.file:
-    path: /opt/caddy
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
 
 - name: Create caddy log directory.
   ansible.builtin.file:
