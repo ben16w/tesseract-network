@@ -1,5 +1,4 @@
 {
-
   log {
     output file /var/log/caddy/caddy.log {
       roll_size 10mb
@@ -9,33 +8,31 @@
     format console
   }
 
+{%- if proxy_http_only is false %}
 
-
-{% if proxy_http_only is false %}
-
-{% if proxy_cloudflare_api_token is not none %}
+  {%- if proxy_cloudflare_api_token is not none %}
   acme_dns cloudflare {{ proxy_cloudflare_api_token }}
-{% endif %}
+  {%- endif %}
 
-{% if proxy_acme_staging is true %}
+  {%- if proxy_acme_staging is true %}
   acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-{% endif %}
+  {%- endif %}
 
-{% else %}
+{%- else %}
 
   auto_https off
 
-{% endif %}
+{%- endif %}
 
-{% if proxy_debug is true %}
+{%- if proxy_debug is true %}
   debug
-{% endif %}
+{%- endif %}
 
-{% if email_username is not none %}
+{%- if email_username is not none %}
   email {{ email_username }}
-{% endif %}
+{%- endif %}
 
-{#
+{# 
   order cache before rewrite
   cache
 
@@ -44,32 +41,29 @@
 #}
 }
 
+{%- for service in proxy_services %}
+  {%- if service.subdomain is none %}
+    {%- if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ tesseract_domain }} {
+  {%- else %}
+    {%- if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ tesseract_domain }} {
+  {%- endif %}
 
-{% for service in proxy_services %}
+    {# 
+    {% if service.cache is defined and service.cache is true %}
+      cache
+    {% endif %}
+    #}
+    reverse_proxy {{ service.target }}
 
-{% if service.subdomain is none %}
-{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ tesseract_domain }} {
-{% else %}
-{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ tesseract_domain }} {
-{% endif %}
+    {%- if service.compress | default(true) %}
+    encode gzip
+    {%- endif %}
 
-{#
-{% if service.cache is defined and service.cache is true %}
-  cache
-{% endif %}
-#}
-  reverse_proxy {{ service.target }}
-
-{% if service.compress is undefined or service.compress is true %}
-  encode gzip
-{% endif %}
-
-{% if service.http1 is defined and service.http1 is true %}
-  tls {
+    {%- if service.http1 is defined and service.http1 is true %}
+    tls {
       alpn http/1.1
+    }
+    {%- endif %}
+
   }
-{% endif %}
-
-}
-
-{% endfor %}
+{%- endfor %}
