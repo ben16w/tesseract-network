@@ -60,3 +60,12 @@ http://
 {%   endif %}
 }
 {% endfor %}
+
+{%     if proxy_http_only is false %}
+https://
+{%-     else -%}
+http://
+{%-     endif -%}
+*.{{ tesseract_domain }} {
+  respond "Not found" 404
+}
