@@ -1,0 +1,21 @@
+---
+- name: Converge
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+    - ./vars.yml
+  tasks:
+    - name: Ensure Python3 is installed
+      ansible.builtin.package:
+        name: python3
+        state: present
+
+    - name: Start dummy HTTP server on port 8081
+      ansible.builtin.shell:
+        cmd: python3 -m http.server 8081 &
+      changed_when: false
+
+    - name: Start dummy HTTP server on port 8082
+      ansible.builtin.shell:
+        cmd: python3 -m http.server 8082 &
+      changed_when: false

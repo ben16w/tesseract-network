@@ -1,9 +1,8 @@
 ---
 - name: Converge
   hosts: all
-  vars:
-    tesseract_domain: ""
-    proxy_services: []
-    proxy_http_only: true
+  vars_files:
+    - ../../defaults/main.yml
+    - ./vars.yml
   roles:
     - role: proxy

@@ -1,0 +1,11 @@
+---
+
+tesseract_domain: "localhost"
+proxy_xcaddy_version: "0.4.4"
+proxy_http_only: true
+proxy_debug: true
+proxy_services:
+  - subdomain: "test1"
+    target: "http://localhost:8081"
+  - subdomain: "test2"
+    target: "http://localhost:8082"

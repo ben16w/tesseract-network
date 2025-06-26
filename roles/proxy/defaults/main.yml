@@ -17,3 +17,6 @@ proxy_acme_staging: false
 proxy_http_only: false
 
 proxy_debug: false
+
+proxy_xcaddy_version: ~
+# e.g. 0.4.4
