@@ -66,7 +66,7 @@
 
 - name: Check if caddy is installed.
   ansible.builtin.stat:
-    path: /usr/bin/caddy
+    path: /opt/caddy/caddy
   register: is_caddy_installed
 
 - name: If caddy is installed.
@@ -114,7 +114,7 @@
     - name: Install caddy.
       ansible.builtin.copy:
         src: /tmp/caddy/caddy
-        dest: /usr/bin/caddy
+        dest: /opt/caddy/caddy
         remote_src: true
         owner: root
         group: root
