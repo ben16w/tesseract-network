@@ -27,7 +27,6 @@
     group: root
     mode: '0644'
 
-# Not going to work cos: go: /usr/bin/go /usr/lib/go /usr/share/go /usr/share/man/man1/go.1.gz
 - name: Check if go is installed.
   ansible.builtin.stat:
     path: /usr/local/go
@@ -107,7 +106,7 @@
         cmd: >
           xcaddy build
           --with github.com/caddy-dns/cloudflare
-#          --with github.com/caddyserver/cache-handler
+          --with github.com/caddyserver/cache-handler
         creates: /tmp/caddy/caddy
         chdir: /tmp/caddy
       when: not is_caddy_installed.stat.exists

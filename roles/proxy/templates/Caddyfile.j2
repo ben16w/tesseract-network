@@ -24,13 +24,10 @@
 {% if email_username is not none %}
   email {{ email_username }}
 {% endif %}
-{# 
-  order cache before rewrite
+{% if proxy_services | selectattr('cache', 'defined') | selectattr('cache') | list | length > 0 %}
   cache
-
-  local_certs
-  skip_install_trust
-#}
+{% endif %}
+  cache
 }
 
 {% for service in proxy_services %}
@@ -49,11 +46,9 @@ http://
 {%-     endif -%}
 {{ service.subdomain }}.{{ tesseract_domain }} {
 {%   endif %}
-{#
 {%   if service.cache is defined and service.cache is true %}
   cache
 {%   endif %}
-#}
   reverse_proxy {{ service.target }}
 {%   if service.compress | default(true) %}
   encode gzip
