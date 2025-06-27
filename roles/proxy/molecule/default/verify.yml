@@ -33,8 +33,10 @@
 
     - name: Check that a subdomain which does not exist returns 404.
       ansible.builtin.uri:
-        url: "http://nonexistent.{{ tesseract_domain }}/"
-        return_content: false
+        url: "http://notfound.{{ tesseract_domain }}/"
+        return_content: true
         status_code: 404
-      register: nonexistent_proxy_check
-      failed_when: nonexistent_proxy_check.status != 404
+      register: notfound_proxy_check
+      failed_when:
+        - notfound_proxy_check.status != 404
+        - "'404 Test' not in notfound_proxy_check.content"
