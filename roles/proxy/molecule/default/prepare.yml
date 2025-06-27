@@ -10,12 +10,18 @@
         name: python3
         state: present
 
-    - name: Start dummy HTTP server on port 8081 and log output
+    - name: Start dummy HTTP server on port 8080 and log output.
       ansible.builtin.shell:
-        cmd: python3 -m http.server 8081 > /tmp/http_server_8081.log 2>&1 &
+        cmd: python3 -m http.server 8080 > /tmp/test_server.log 2>&1 &
       changed_when: false
 
-    - name: Start dummy HTTP server on port 8082 and log output
+    - name: Start dummy 404 HTTP server on port 8081 and log output.
       ansible.builtin.shell:
-        cmd: python3 -m http.server 8082 > /tmp/http_server_8082.log 2>&1 &
+        cmd: >
+          set -o pipefail;
+          nohup bash -c 'while true; do { echo -ne
+          "HTTP/1.1 404 Not Found\r\n
+          Content-Length: 21\r\n
+          Content-Type: text/plain\r\n\r\n404 Test\n"; }
+          | nc -l -p 8081; done' > /tmp/404_server.log 2>&1 &
       changed_when: false

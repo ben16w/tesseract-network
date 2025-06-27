@@ -20,3 +20,5 @@ proxy_debug: false
 
 proxy_xcaddy_version: ~
 # e.g. 0.4.4
+
+proxy_404_page: ~

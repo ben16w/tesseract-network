@@ -61,11 +61,18 @@ http://
 }
 {% endfor %}
 
-{%     if proxy_http_only is false %}
+{% if proxy_http_only is false %}
 https://
-{%-     else -%}
+{%- else -%}
 http://
-{%-     endif -%}
+{%- endif -%}
 *.{{ tesseract_domain }} {
+{% if proxy_404_page is not none %}
+  reverse_proxy {{ proxy_404_page }}
+  header {
+    Response set Status 404
+  }
+{% else %}
   respond "Not found" 404
+{% endif %}
 }

@@ -25,16 +25,16 @@
 
     - name: Check that proxy service for test1 is active
       ansible.builtin.uri:
-        url: "http://test1.{{ tesseract_domain }}/"
+        url: "http://test.{{ tesseract_domain }}/"
         return_content: false
         status_code: 200
       register: test1_proxy_check
       failed_when: test1_proxy_check.status != 200
 
-    - name: Check that proxy service for test2 is active
+    - name: Check that a subdomain which does not exist returns 404
       ansible.builtin.uri:
-        url: "http://test2.{{ tesseract_domain }}/"
+        url: "http://nonexistent.{{ tesseract_domain }}/"
         return_content: false
-        status_code: 200
-      register: test2_proxy_check
-      failed_when: test2_proxy_check.status != 200
+        status_code: 404
+      register: nonexistent_proxy_check
+      failed_when: nonexistent_proxy_check.status != 404
