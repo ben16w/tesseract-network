@@ -3,8 +3,10 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - proxy_services is not none
       - tesseract_domain is not none
+      - proxy_services is not none
+      - proxy_xcaddy_version is not none
+      - proxy_go_version is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
@@ -26,19 +28,18 @@
     group: root
     mode: '0644'
 
-# Not going to work cos: go: /usr/bin/go /usr/lib/go /usr/share/go /usr/share/man/man1/go.1.gz
-- name: Check if go is installed.
+- name: Check if Go is installed.
   ansible.builtin.stat:
     path: /usr/local/go
   register: is_go_installed
 
-- name: If go is installed.
+- name: If Go is not installed.
   when: not is_go_installed.stat.exists
   block:
 
-    - name: Download go archive.
+    - name: Download Go archive.
       ansible.builtin.get_url:
-        url: https://go.dev/dl/go1.21.0.linux-{{ download_arch }}.tar.gz
+        url: https://go.dev/dl/go{{ proxy_go_version }}.linux-{{ download_arch }}.tar.gz
         dest: /tmp/go.tar.gz
         mode: '0744'
         owner: root
@@ -48,7 +49,7 @@
       delay: 10
       until: download_go is succeeded
 
-    - name: Extract go archive into /usr/local/go.
+    - name: Extract Go archive into /usr/local/go.
       ansible.builtin.unarchive:
         src: /tmp/go.tar.gz
         dest: /usr/local
@@ -64,18 +65,28 @@
     group: root
     mode: '0644'
 
-- name: Check if caddy is installed.
+- name: Create caddy directory.
+  ansible.builtin.file:
+    path: /opt/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Check if Caddy is installed.
   ansible.builtin.stat:
-    path: /usr/bin/caddy
+    path: /opt/caddy/caddy
   register: is_caddy_installed
 
-- name: If caddy is installed.
+- name: If Caddy is not installed.
   when: not is_caddy_installed.stat.exists
   block:
 
     - name: Download and extract xcaddy archive into tmp directory.
       ansible.builtin.get_url:
-        url: "https://github.com/caddyserver/xcaddy/releases/download/v0.3.5/xcaddy_0.3.5_linux_{{ download_arch }}.deb"
+        url: "https://github.com/caddyserver/xcaddy/releases/download/\
+          v{{ proxy_xcaddy_version }}/\
+          xcaddy_{{ proxy_xcaddy_version }}_linux_{{ download_arch }}.deb"
         dest: /tmp/xcaddy.deb
         owner: root
         group: root
@@ -104,7 +115,7 @@
         cmd: >
           xcaddy build
           --with github.com/caddy-dns/cloudflare
-#          --with github.com/caddyserver/cache-handler
+          --with github.com/caddyserver/cache-handler
         creates: /tmp/caddy/caddy
         chdir: /tmp/caddy
       when: not is_caddy_installed.stat.exists
@@ -112,19 +123,11 @@
     - name: Install caddy.
       ansible.builtin.copy:
         src: /tmp/caddy/caddy
-        dest: /usr/bin/caddy
+        dest: /opt/caddy/caddy
         remote_src: true
         owner: root
         group: root
         mode: '0755'
-
-- name: Create caddy directory.
-  ansible.builtin.file:
-    path: /opt/caddy
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
 
 - name: Create caddy log directory.
   ansible.builtin.file:

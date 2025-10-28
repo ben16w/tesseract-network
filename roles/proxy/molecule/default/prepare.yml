@@ -1,0 +1,33 @@
+---
+- name: Converge
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+    - ./vars.yml
+  tasks:
+    - name: Ensure python and nc are installed.
+      ansible.builtin.package:
+        name:
+          - netcat-traditional
+        state: present
+        update_cache: true
+
+    - name: Start dummy HTTP server on port 8081 and log output.
+      ansible.builtin.shell:
+        cmd: >
+          set -o pipefail;
+          bash -c 'while true; do { echo -ne
+          "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nHello World\n"
+          ; } | nc -l -p 8081; done' > /tmp/test_server.log 2>&1 &
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Start dummy 404 HTTP server on port 8082 and log output.
+      ansible.builtin.shell:
+        cmd: >
+          set -o pipefail;
+          bash -c 'while true; do { echo -ne
+          "HTTP/1.1 404 Not Found\r\nContent-Length: 9\r\nContent-Type: text/plain\r\n\r\n404 Test\n"
+          ; } | nc -l -p 8082; done' > /tmp/404_server.log 2>&1 &
+        executable: /bin/bash
+      changed_when: false

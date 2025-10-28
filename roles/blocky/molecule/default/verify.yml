@@ -70,7 +70,7 @@
         method: POST
         body_format: json
         body:
-          query: "www.basnt.com"
+          query: "propellerads.com"
           type: "A"
         headers:
           Content-Type: "application/json"
@@ -90,7 +90,7 @@
         method: POST
         body_format: json
         body:
-          query: "trustsoft.com"
+          query: "adcash.com"
           type: "A"
         headers:
           Content-Type: "application/json"
@@ -110,7 +110,7 @@
         method: POST
         body_format: json
         body:
-          query: "coolright.com"
+          query: "media.net"
           type: "A"
         headers:
           Content-Type: "application/json"

@@ -1,5 +1,4 @@
 {
-
   log {
     output file /var/log/caddy/caddy.log {
       roll_size 10mb
@@ -9,67 +8,79 @@
     format console
   }
 
-
-
-{% if proxy_http_only is false %}
-
-{% if proxy_cloudflare_api_token is not none %}
-  acme_dns cloudflare {{ proxy_cloudflare_api_token }}
-{% endif %}
-
-{% if proxy_acme_staging is true %}
+{% if proxy_http_only is false and proxy_acme_staging is true %}
   acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 {% endif %}
-
-{% else %}
-
+{% if proxy_http_only is true %}
   auto_https off
-
 {% endif %}
-
 {% if proxy_debug is true %}
   debug
 {% endif %}
-
 {% if email_username is not none %}
   email {{ email_username }}
 {% endif %}
-
-{#
-  order cache before rewrite
+{% if proxy_services | selectattr('cache', 'defined') | selectattr('cache') | list | length > 0 %}
   cache
-
-  local_certs
-  skip_install_trust
-#}
+{% endif %}
 }
-
 
 {% for service in proxy_services %}
-
-{% if service.subdomain is none %}
-{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ tesseract_domain }} {
-{% else %}
-{% if proxy_http_only is false %}https://{% else %}http://{% endif %}{{ service.subdomain }}.{{ tesseract_domain }} {
-{% endif %}
-
-{#
-{% if service.cache is defined and service.cache is true %}
+{%   if service.subdomain is none %}
+{%     if proxy_http_only is false %}
+https://
+{%-     else -%}
+http://
+{%-     endif -%}
+{{ tesseract_domain }} {
+{%   else %}
+{%     if proxy_http_only is false %}
+https://
+{%-     else -%}
+http://
+{%-     endif -%}
+{{ service.subdomain }}.{{ tesseract_domain }} {
+{%   endif %}
+{%   if service.cache is defined and service.cache is true %}
   cache
-{% endif %}
-#}
+{%   endif %}
   reverse_proxy {{ service.target }}
-
-{% if service.compress is undefined or service.compress is true %}
+{%   if service.compress | default(true) %}
   encode gzip
-{% endif %}
-
-{% if service.http1 is defined and service.http1 is true %}
+{%   endif %}
+{%   set tls_directives = [] %}
+{%   if proxy_http_only is false and proxy_cloudflare_api_token is not none %}
+{%     set _ = tls_directives.append('dns') %}
+{%   endif %}
+{%   if service.http1 is defined and service.http1 is true %}
+{%     set _ = tls_directives.append('alpn') %}
+{%   endif %}
+{%   if tls_directives %}
   tls {
-      alpn http/1.1
+{%     if 'dns' in tls_directives %}
+    dns cloudflare {env.CF_API_TOKEN}
+    resolvers {{ proxy_resolvers | join(" ") }}
+{%     endif %}
+{%     if 'alpn' in tls_directives %}
+    alpn http/1.1
+{%     endif %}
   }
-{% endif %}
-
+{%   endif %}
 }
-
 {% endfor %}
+
+{% if proxy_http_only is false %}
+https://
+{%- else -%}
+http://
+{%- endif -%}
+*.{{ tesseract_domain }} {
+{% if proxy_404_page is not none %}
+  reverse_proxy {{ proxy_404_page }}
+  header {
+    Response set Status 404
+  }
+{% else %}
+  respond "Not found" 404
+{% endif %}
+}

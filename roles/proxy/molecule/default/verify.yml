@@ -3,4 +3,44 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - ./vars.yml
   tasks:
+    - name: Check that caddy service is running.
+      ansible.builtin.systemd:
+        name: caddy
+      register: caddy_service
+      failed_when: caddy_service.failed
+
+    - name: Check that Caddyfile exists.
+      ansible.builtin.stat:
+        path: /opt/caddy/Caddyfile
+      register: caddyfile_stat
+      failed_when: not caddyfile_stat.stat.exists
+
+    - name: Check that caddy log file exists.
+      ansible.builtin.stat:
+        path: /var/log/caddy/caddy.log
+      register: caddylog_stat
+      failed_when: not caddylog_stat.stat.exists
+
+    - name: Check that proxy service for test is active.
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:80/"
+        headers:
+          Host: "test.{{ tesseract_domain }}"
+        return_content: false
+        status_code: 200
+      register: test1_proxy_check
+      failed_when: test1_proxy_check.status != 200
+
+    - name: Check that a subdomain which does not exist returns 404.
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:80/"
+        headers:
+          Host: "notfound.{{ tesseract_domain }}"
+        return_content: true
+        status_code: 404
+      register: notfound_proxy_check
+      failed_when:
+        - notfound_proxy_check.status != 404
+        - "'404 Test' not in notfound_proxy_check.content"

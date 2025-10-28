@@ -1,0 +1,11 @@
+---
+
+tesseract_domain: "localhost"
+proxy_xcaddy_version: "0.4.4"
+proxy_go_version: "1.25.1"
+proxy_http_only: true
+proxy_debug: true
+proxy_services:
+  - subdomain: "test"
+    target: "http://localhost:8081"
+proxy_404_page: http://localhost:8082
