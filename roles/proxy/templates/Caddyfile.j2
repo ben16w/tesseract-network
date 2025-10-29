@@ -83,4 +83,10 @@ http://
 {% else %}
   respond "Not found" 404
 {% endif %}
+{% if proxy_http_only is false and proxy_cloudflare_api_token is not none %}
+  tls {
+    dns cloudflare {env.CF_API_TOKEN}
+    resolvers {{ proxy_resolvers | join(" ") }}
+  }
+{% endif %}
 }
