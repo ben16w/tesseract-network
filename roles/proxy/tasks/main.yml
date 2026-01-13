@@ -162,3 +162,4 @@
     state: started
     name: caddy
     enabled: true
+    daemon_reload: true

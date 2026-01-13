@@ -6,7 +6,6 @@
       - tesseract_hostname is not none
       - blocky_dns_records is not none
       - blocky_version is not none
-      - blocky_allowed_domains is not none
 
 - name: Add records to /etc/hosts.
   ansible.builtin.lineinfile:
@@ -54,7 +53,7 @@
     state: directory
     owner: root
     group: root
-    mode: '0777'
+    mode: '0755'
 
 - name: Create a blocky installation directory if it does not already exist.
   ansible.builtin.file:

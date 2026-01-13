@@ -7,3 +7,11 @@
         name: dnsutils
         state: present
         update_cache: true
+
+    - name: Create allowlist file for testing.
+      ansible.builtin.copy:
+        content: |
+          allowed.com
+          propellerads.com
+        dest: /tmp/allowlist.txt
+        mode: '0644'

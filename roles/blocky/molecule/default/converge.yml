@@ -8,9 +8,8 @@
         value: 127.0.0.1
       - record: test.test
         value: 192.168.99.99
-    blocky_version: "0.25"
-    blocky_allowed_domains:
-      - allowed.com
-      - propellerads.com
+    blocky_version: "0.28.2"
+    blocky_allowlists: |
+      - /tmp/allowlist.txt
   roles:
     - role: blocky

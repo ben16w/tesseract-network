@@ -15,9 +15,8 @@ blocking:
       {{ blocky_denylists | indent(6) }}
   allowlists:
     main:
-{% if blocky_allowed_domains %}
-      - |
-{{ blocky_allowed_domains | join('\n') | indent(8, true) }}
+{% if blocky_allowlists is not none %}
+      {{ blocky_allowlists | indent(6) }}
 {% endif %}
   clientGroupsBlock:
     default:
