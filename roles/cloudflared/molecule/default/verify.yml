@@ -1,10 +1,24 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    cloudflared_version: "2025.6.1"
   tasks:
 
-    - name: Ensure cloudflared is installed and executable
-      ansible.builtin.command: "cloudflared --version"
+    - name: Check that the cloudflared binary exists.
+      ansible.builtin.stat:
+        path: /usr/bin/cloudflared
+      register: cloudflared_bin
+      failed_when: not cloudflared_bin.stat.exists
+
+    - name: Run cloudflared and get the version.
+      ansible.builtin.command:
+        cmd: cloudflared --version
       changed_when: false
+      register: cloudflared_version_output
+
+    - name: Assert that cloudflared version matches expected.
+      ansible.builtin.assert:
+        that:
+          - cloudflared_version in cloudflared_version_output.stdout
+        fail_msg: "Expected version {{ cloudflared_version }} not found in: {{ cloudflared_version_output.stdout }}"
