@@ -18,22 +18,22 @@
   loop: "{{ blocky_dns_records }}"
   when:
     - item.record != tesseract_hostname
-    - ansible_virtualization_type != "docker"
+    - ansible_facts['virtualization_type'] != "docker"
 
 - name: Include OS specific tasks.
   ansible.builtin.include_tasks:
-    file: "{{ ansible_distribution }}.yml"
-  when: ansible_distribution == "Ubuntu"
+    file: "{{ ansible_facts['distribution'] }}.yml"
+  when: ansible_facts['distribution'] == "Ubuntu"
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "x86_64"
-  when: ansible_architecture == "x86_64"
+  when: ansible_facts['architecture'] == "x86_64"
 
 - name: Setting architecture to arm64.
   ansible.builtin.set_fact:
     download_arch: "arm64"
-  when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+  when: '"armv" in ansible_facts["architecture"] or "aarch" in ansible_facts["architecture"]'
 
 - name: Downloading blocky.
   ansible.builtin.get_url:

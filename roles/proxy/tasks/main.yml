@@ -11,12 +11,12 @@
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "amd64"
-  when: ansible_architecture == "x86_64"
+  when: ansible_facts['architecture'] == "x86_64"
 
 - name: Setting architecture to arm64.
   ansible.builtin.set_fact:
     download_arch: "arm64"
-  when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+  when: '"armv" in ansible_facts["architecture"] or "aarch" in ansible_facts["architecture"]'
 
 - name: Increase maximum socket receive buffer.
   notify: reload sysctl
@@ -110,7 +110,7 @@
 
     - name: Xcaddy build.
       environment:
-        PATH: "{{ ansible_env.PATH }}:/usr/local/go/bin"
+        PATH: "{{ ansible_facts['env'].PATH }}:/usr/local/go/bin"
       ansible.builtin.command:
         cmd: >
           xcaddy build

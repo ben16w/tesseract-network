@@ -8,16 +8,16 @@
 - name: Set architecture variable for amd64.
   ansible.builtin.set_fact:
     architecture: "amd64"
-  when: ansible_architecture == "x86_64"
+  when: ansible_facts['architecture'] == "x86_64"
 
 - name: Set architecture variable for arm64.
   ansible.builtin.set_fact:
     architecture: "arm64"
-  when: ansible_architecture == "aarch64"
+  when: ansible_facts['architecture'] == "aarch64"
 
 - name: Fail if architecture is unsupported.
   ansible.builtin.fail:
-    msg: "Unsupported architecture: {{ ansible_architecture }}"
+    msg: "Unsupported architecture: {{ ansible_facts['architecture'] }}"
   when: architecture is not defined
 
 - name: Download cloudflared.
