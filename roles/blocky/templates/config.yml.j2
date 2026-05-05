@@ -20,7 +20,8 @@ blocking:
     default:
       - main
 {% for client in blocky_whitelisted_clients %}
-    {{ client }}: []
+    {{ client }}:
+      - disabled
 {% endfor %}
   loading:
     downloads:
