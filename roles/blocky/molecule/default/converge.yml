@@ -11,5 +11,8 @@
     blocky_version: "0.28.2"
     blocky_allowlists: |
       - /tmp/allowlist.txt
+    blocky_upstream_servers:
+      - 1.1.1.1
+      - 8.8.8.8
   roles:
     - role: blocky

@@ -2,10 +2,21 @@
 
 tesseract_hostname: ~
 
-blocky_version: ~ # e.g. 0.25
+blocky_version: ~
+# e.g.
+# blocky_version: 0.25
 
 blocky_dns_port: 53
 blocky_http_port: 4000
+
+blocky_upstream_servers: ~
+# e.g.
+# blocky_upstream_servers:
+#   - https://cloudflare-dns.com/dns-query # cloudflare
+#   - https://dns.nextdns.io # nextdns
+#   - 94.140.14.140 # adguard-dns
+#   - 46.182.19.48 # digitalcourage
+#   - https://dnsforge.de/dns-query # dnsforge
 
 blocky_dns_records: ~
 # e.g.
@@ -17,6 +28,14 @@ blocky_allowlists: ~
 # e.g.
 # blocky_allowlists: |
 #   - https://raw.githubusercontent.com/anudeepND/whitelist/master/domains/whitelist.txt
+
+blocky_client_lookup_upstream: 192.168.1.1
+
+blocky_whitelisted_clients: []
+# e.g.
+# blocky_whitelisted_clients:
+#   - my-phone
+#   - work-laptop
 
 blocky_denylists: |
   - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
