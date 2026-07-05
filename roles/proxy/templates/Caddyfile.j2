@@ -17,8 +17,8 @@
 {% if proxy_debug is true %}
   debug
 {% endif %}
-{% if email_username is not none %}
-  email {{ email_username }}
+{% if tesseract_email_username is not none %}
+  email {{ tesseract_email_username }}
 {% endif %}
 {% if proxy_services | selectattr('cache', 'defined') | selectattr('cache') | list | length > 0 %}
   cache

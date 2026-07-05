@@ -3,7 +3,7 @@
 # tesseract_username: ~
 tesseract_domain: ~
 
-email_username: ~
+tesseract_email_username: ~
 
 proxy_services: ~
 #  - subdomain: example
