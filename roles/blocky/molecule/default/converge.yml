@@ -15,4 +15,4 @@
       - 1.1.1.1
       - 8.8.8.8
   roles:
-    - role: blocky
+    - role: tesseract.network.blocky

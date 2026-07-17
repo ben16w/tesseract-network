@@ -4,4 +4,4 @@
   vars:
     cloudflared_version: "2025.6.1"
   roles:
-    - role: cloudflared
+    - role: tesseract.network.cloudflared
