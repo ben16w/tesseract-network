@@ -1,6 +1,12 @@
 ---
 
+- name: Check for systemd-resolved.conf.
+  ansible.builtin.stat:
+    path: /etc/systemd/resolved.conf
+  register: blocky_resolved_conf
+
 - name: Ensure systemd-resolved.conf is set correctly
+  when: blocky_resolved_conf.stat.exists
   ansible.builtin.lineinfile:
     path: /etc/systemd/resolved.conf
     regexp: "{{ item.regexp }}"

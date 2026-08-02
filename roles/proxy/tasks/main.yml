@@ -18,7 +18,13 @@
     download_arch: "arm64"
   when: '"armv" in ansible_facts["architecture"] or "aarch" in ansible_facts["architecture"]'
 
+- name: Check for sysctl.conf.
+  ansible.builtin.stat:
+    path: /etc/sysctl.conf
+  register: proxy_sysctl_conf
+
 - name: Increase maximum socket receive buffer.
+  when: proxy_sysctl_conf.stat.exists
   notify: reload sysctl
   ansible.builtin.lineinfile:
     path: /etc/sysctl.conf
