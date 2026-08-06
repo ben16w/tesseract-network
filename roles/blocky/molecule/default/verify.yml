@@ -3,6 +3,7 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
     - name: Set verify variables.
       ansible.builtin.set_fact:
@@ -11,10 +12,8 @@
     - name: Check Blocky service is running.
       ansible.builtin.systemd:
         name: blocky
-        state: started
-        enabled: true
       register: blocky_service_status
-      failed_when: blocky_service_status.failed
+      failed_when: blocky_service_status.status.ActiveState != 'active'
 
     - name: Check Blocky service logs for errors.
       ansible.builtin.shell:

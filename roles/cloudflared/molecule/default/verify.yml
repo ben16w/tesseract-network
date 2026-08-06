@@ -3,8 +3,14 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
-
-    - name: Ensure cloudflared is installed and executable
+    - name: Ensure cloudflared is installed and executable.
       ansible.builtin.command: "cloudflared --version"
+      register: cloudflared_version_output
       changed_when: false
+
+    - name: Assert cloudflared version matches.
+      ansible.builtin.assert:
+        that:
+          - "cloudflared_version in cloudflared_version_output.stdout"

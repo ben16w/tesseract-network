@@ -1,8 +1,8 @@
-subnet 192.168.1.0 netmask 255.255.255.0 {
-  option routers 192.168.1.1;
-  option subnet-mask 255.255.255.0;
+subnet {{ dhcp_subnet }} netmask {{ dhcp_netmask }} {
+  option routers {{ dhcp_router }};
+  option subnet-mask {{ dhcp_netmask }};
   option domain-name-servers {{ dhcp_dns_host }};
-  range 192.168.1.100 192.168.1.254;
+  range {{ dhcp_range_start }} {{ dhcp_range_end }};
 
   authoritative;
   ddns-update-style none;

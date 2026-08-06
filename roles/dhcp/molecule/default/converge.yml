@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    dhcp_dns_host: "172.17.0.1"
+    dhcp_interfaces: "eth0"
+    dhcp_subnet: "172.17.0.0"
+    dhcp_netmask: "255.255.0.0"
+    dhcp_router: "172.17.0.1"
+    dhcp_range_start: "172.17.0.100"
+    dhcp_range_end: "172.17.0.254"
+  roles:
+    - role: tesseract.network.dhcp

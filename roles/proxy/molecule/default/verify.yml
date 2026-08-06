@@ -3,13 +3,13 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
-    - ./vars.yml
+    - vars.yml
   tasks:
     - name: Check that caddy service is running.
       ansible.builtin.systemd:
         name: caddy
       register: caddy_service
-      failed_when: caddy_service.failed
+      failed_when: caddy_service.status.ActiveState != 'active'
 
     - name: Check that Caddyfile exists.
       ansible.builtin.stat:

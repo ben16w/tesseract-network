@@ -1,18 +1,8 @@
 ---
 - name: Converge
   hosts: all
-  vars:
-    tesseract_hostname: "localhost"
-    blocky_dns_records:
-      - record: localhost
-        value: 127.0.0.1
-      - record: test.test
-        value: 192.168.99.99
-    blocky_version: "0.28.2"
-    blocky_allowlists: |
-      - /tmp/allowlist.txt
-    blocky_upstream_servers:
-      - 1.1.1.1
-      - 8.8.8.8
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
   roles:
     - role: tesseract.network.blocky

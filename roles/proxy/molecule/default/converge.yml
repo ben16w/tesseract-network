@@ -3,6 +3,6 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
-    - ./vars.yml
+    - vars.yml
   roles:
     - role: tesseract.network.proxy

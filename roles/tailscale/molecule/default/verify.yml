@@ -1,0 +1,15 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+  tasks:
+    - name: Ensure tailscale is installed and executable.
+      ansible.builtin.command: tailscale version
+      changed_when: false
+
+    - name: Check tailscaled service is running.
+      ansible.builtin.systemd:
+        name: tailscaled
+      register: tailscaled_service
+      failed_when: tailscaled_service.status.ActiveState != 'active'
