@@ -8,6 +8,7 @@ tesseract_email_username: ~
 proxy_services: ~
 #  - subdomain: example
 #    target: http://gengar.lan:80
+#    rewrite_path: /v2
 #    http1: false
 #    compress: true
 #    cache: false

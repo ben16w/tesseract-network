@@ -44,6 +44,12 @@ http://
 {%   if service.cache is defined and service.cache is true %}
   cache
 {%   endif %}
+{%   if service.rewrite_path is defined %}
+  @rewrite_path_{{ loop.index }} {
+    not path {{ service.rewrite_path }} {{ service.rewrite_path }}/*
+  }
+  uri @rewrite_path_{{ loop.index }} path_regexp ^/(.*)$ {{ service.rewrite_path }}/$1
+{%   endif %}
   reverse_proxy {{ service.target }}
 {%   if service.compress | default(true) %}
   encode gzip
