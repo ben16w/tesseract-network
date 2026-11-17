@@ -1,0 +1,15 @@
+---
+
+openvpn_socks_config_url: ~
+
+openvpn_socks_username: ~
+openvpn_socks_password: ~
+
+openvpn_socks_port: 1080
+openvpn_socks_bind: "0.0.0.0"
+openvpn_socks_device: "tun0"
+
+openvpn_socks_config_dir: /etc/openvpn/client
+openvpn_socks_config_path: "{{ openvpn_socks_config_dir }}/openvpn-socks.conf"
+openvpn_socks_auth_path: "{{ openvpn_socks_config_dir }}/openvpn-socks.auth"
+openvpn_socks_download_path: "{{ openvpn_socks_config_dir }}/openvpn-socks.ovpn"

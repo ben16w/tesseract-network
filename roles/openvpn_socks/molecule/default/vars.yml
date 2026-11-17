@@ -1,0 +1,5 @@
+---
+openvpn_socks_config_url: http://127.0.0.1:8765/fixture.ovpn
+openvpn_socks_username: testuser
+openvpn_socks_password: testpass
+openvpn_socks_port: 1080

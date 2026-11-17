@@ -1,0 +1,73 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
+  tasks:
+    - name: Check OpenVPN package is installed.
+      ansible.builtin.command:
+        cmd: dpkg-query -W -f='${Status}' openvpn
+      register: openvpn_pkg
+      changed_when: false
+      failed_when: "'install ok installed' not in openvpn_pkg.stdout"
+
+    - name: Check Dante package is installed.
+      ansible.builtin.command:
+        cmd: dpkg-query -W -f='${Status}' dante-server
+      register: dante_pkg
+      changed_when: false
+      failed_when: "'install ok installed' not in dante_pkg.stdout"
+
+    - name: Check OpenVPN client config exists.
+      ansible.builtin.stat:
+        path: "{{ openvpn_socks_config_path }}"
+      register: openvpn_conf
+      failed_when: not openvpn_conf.stat.exists
+
+    - name: Check OpenVPN client config contains route-nopull.
+      ansible.builtin.command:
+        cmd: grep -F route-nopull {{ openvpn_socks_config_path }}
+      register: openvpn_route_nopull
+      changed_when: false
+      failed_when: openvpn_route_nopull.rc != 0
+
+    - name: Check OpenVPN auth file exists.
+      ansible.builtin.stat:
+        path: "{{ openvpn_socks_auth_path }}"
+      register: openvpn_auth
+      failed_when: not openvpn_auth.stat.exists
+
+    - name: Check Dante config exists.
+      ansible.builtin.stat:
+        path: /etc/danted.conf
+      register: dante_conf
+      failed_when: not dante_conf.stat.exists
+
+    - name: Check Dante config listens on expected port.
+      ansible.builtin.command:
+        cmd: "grep -E 'internal: .+ port = {{ openvpn_socks_port }}' /etc/danted.conf"
+      register: dante_port
+      changed_when: false
+      failed_when: dante_port.rc != 0
+
+    - name: Check OpenVPN client unit is enabled.
+      ansible.builtin.command:
+        cmd: systemctl is-enabled openvpn-client@openvpn-socks
+      register: openvpn_enabled
+      changed_when: false
+      failed_when: openvpn_enabled.stdout.strip() != "enabled"
+
+    - name: Check Dante unit is enabled.
+      ansible.builtin.command:
+        cmd: systemctl is-enabled danted
+      register: dante_enabled
+      changed_when: false
+      failed_when: dante_enabled.stdout.strip() != "enabled"
+
+    - name: Check Dante systemd unit requires OpenVPN.
+      ansible.builtin.command:
+        cmd: grep -F 'Requires=openvpn-client@openvpn-socks.service' /etc/systemd/system/danted.service
+      register: dante_requires
+      changed_when: false
+      failed_when: dante_requires.rc != 0

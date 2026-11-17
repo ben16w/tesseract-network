@@ -1,0 +1,28 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Install netcat for fixture HTTP server.
+      ansible.builtin.apt:
+        name: netcat-openbsd
+        state: present
+        update_cache: true
+
+    - name: Copy fixture OpenVPN profile.
+      ansible.builtin.copy:
+        src: fixture.ovpn
+        dest: /tmp/fixture.ovpn
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Start fixture HTTP server for OpenVPN profile.
+      ansible.builtin.shell:
+        cmd: >
+          set -o pipefail;
+          bash -c 'while true; do
+          { printf "HTTP/1.1 200 OK\r\nContent-Length: %s\r\nContent-Type: application/octet-stream\r\nConnection: close\r\n\r\n" "$(wc -c </tmp/fixture.ovpn)";
+          cat /tmp/fixture.ovpn; } | nc -l -p 8765 -q 1;
+          done' >/tmp/fixture-http.log 2>&1 &
+        executable: /bin/bash
+      changed_when: false

@@ -1,0 +1,8 @@
+{{ openvpn_socks_profile }}
+# BEGIN ANSIBLE MANAGED OPENVPN_SOCKS
+route-nopull
+pull-filter ignore "redirect-gateway"
+{% if openvpn_socks_username is not none %}
+auth-user-pass {{ openvpn_socks_auth_path }}
+{% endif %}
+# END ANSIBLE MANAGED OPENVPN_SOCKS

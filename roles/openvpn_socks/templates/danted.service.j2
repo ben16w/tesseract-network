@@ -1,0 +1,17 @@
+[Unit]
+Description=Dante SOCKS5 proxy over OpenVPN
+Documentation=man:danted(8)
+After=network-online.target openvpn-client@openvpn-socks.service
+Wants=network-online.target
+Requires=openvpn-client@openvpn-socks.service
+
+[Service]
+Type=simple
+TimeoutStartSec=60
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 45); do ip link show {{ openvpn_socks_device }} >/dev/null 2>&1 && exit 0; sleep 1; done; exit 1'
+ExecStart=/usr/sbin/danted -f /etc/danted.conf
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

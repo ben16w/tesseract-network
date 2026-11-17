@@ -1,0 +1,131 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - openvpn_socks_config_url is not none
+      - (openvpn_socks_username is none and openvpn_socks_password is none) or
+        (openvpn_socks_username is not none and openvpn_socks_password is not none)
+
+- name: Install OpenVPN and Dante.
+  ansible.builtin.apt:
+    name:
+      - openvpn
+      - dante-server
+      - iproute2
+    state: present
+    update_cache: true
+
+- name: Create OpenVPN client configuration directory.
+  ansible.builtin.file:
+    path: "{{ openvpn_socks_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Download OpenVPN configuration.
+  notify: restart openvpn socks
+  ansible.builtin.get_url:
+    url: "{{ openvpn_socks_config_url }}"
+    dest: "{{ openvpn_socks_download_path }}"
+    owner: root
+    group: root
+    mode: '0640'
+    force: true
+  register: openvpn_socks_download
+  retries: 5
+  delay: 10
+  until: openvpn_socks_download is succeeded
+
+- name: Read downloaded OpenVPN configuration.
+  ansible.builtin.slurp:
+    src: "{{ openvpn_socks_download_path }}"
+  register: openvpn_socks_raw
+  changed_when: false
+
+- name: Build OpenVPN profile without provider auth-user-pass lines.
+  when: openvpn_socks_username is not none
+  ansible.builtin.set_fact:
+    openvpn_socks_profile: >-
+      {{
+        (openvpn_socks_raw.content | b64decode).splitlines()
+        | reject('search', '^auth-user-pass( |$)')
+        | join('\n')
+      }}
+
+- name: Build OpenVPN profile from the downloaded file.
+  when: openvpn_socks_username is none
+  ansible.builtin.set_fact:
+    openvpn_socks_profile: >-
+      {{
+        (openvpn_socks_raw.content | b64decode).splitlines()
+        | join('\n')
+      }}
+
+- name: Install OpenVPN client configuration.
+  notify: restart openvpn socks
+  ansible.builtin.template:
+    src: openvpn-socks.conf.j2
+    dest: "{{ openvpn_socks_config_path }}"
+    owner: root
+    group: root
+    mode: '0640'
+
+- name: Write OpenVPN credentials file.
+  when: openvpn_socks_username is not none
+  notify: restart openvpn socks
+  ansible.builtin.copy:
+    dest: "{{ openvpn_socks_auth_path }}"
+    content: |
+      {{ openvpn_socks_username }}
+      {{ openvpn_socks_password }}
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Remove OpenVPN credentials file when unused.
+  when: openvpn_socks_username is none
+  ansible.builtin.file:
+    path: "{{ openvpn_socks_auth_path }}"
+    state: absent
+
+- name: Template Dante configuration.
+  notify: restart dante
+  ansible.builtin.template:
+    src: danted.conf.j2
+    dest: /etc/danted.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Template Dante systemd unit.
+  notify: restart dante
+  ansible.builtin.template:
+    src: danted.service.j2
+    dest: /etc/systemd/system/danted.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable OpenVPN client.
+  ansible.builtin.systemd:
+    name: openvpn-client@openvpn-socks
+    enabled: true
+    daemon_reload: true
+
+- name: Start OpenVPN client without blocking on VPN handshake.  # noqa: command-instead-of-module
+  ansible.builtin.command:
+    cmd: systemctl start --no-block openvpn-client@openvpn-socks
+  changed_when: false
+
+- name: Enable Dante SOCKS proxy.
+  ansible.builtin.systemd:
+    name: danted
+    enabled: true
+    daemon_reload: true
+
+- name: Start Dante SOCKS proxy without blocking on tunnel.  # noqa: command-instead-of-module
+  ansible.builtin.command:
+    cmd: systemctl start --no-block danted
+  changed_when: false
