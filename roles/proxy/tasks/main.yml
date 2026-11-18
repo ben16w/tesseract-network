@@ -146,7 +146,7 @@
 - name: Template Caddyfile.
   notify: restart caddy
   ansible.builtin.template:
-    src: templates/Caddyfile.j2
+    src: Caddyfile.j2
     dest: /opt/caddy/Caddyfile
     force: true
     owner: root
@@ -156,7 +156,7 @@
 - name: Create caddy service unit.
   notify: restart caddy
   ansible.builtin.template:
-    src: templates/caddy.service.j2
+    src: caddy.service.j2
     dest: /etc/systemd/system/caddy.service
     force: true
     owner: root
