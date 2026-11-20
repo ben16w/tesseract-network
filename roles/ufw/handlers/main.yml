@@ -1,0 +1,13 @@
+---
+
+- name: Reload UFW.
+  listen: reload ufw
+  community.general.ufw:
+    state: reloaded
+
+- name: Restart Docker so it recreates rules removed by the UFW reload.
+  listen: reload ufw
+  when: ufw_rules | selectattr('type', 'in', ['docker', 'both']) | list | length > 0
+  ansible.builtin.service:
+    name: docker
+    state: restarted

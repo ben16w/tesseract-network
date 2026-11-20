@@ -1,0 +1,94 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
+  tasks:
+    - name: Verify UFW is active and denies unmatched traffic.
+      ansible.builtin.command:
+        cmd: ufw status verbose
+      register: ufw_status
+      changed_when: false
+      failed_when: >-
+        'Status: active' not in ufw_status.stdout or
+        'Default: deny (incoming)' not in ufw_status.stdout
+
+    - name: Verify the allowed host port is reachable.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - --rm
+          - --network
+          - ufw-test
+          - curlimages/curl:8.5.0
+          - -sf
+          - --connect-timeout
+          - "2"
+          - --max-time
+          - "3"
+          - "http://{{ ufw_test_gw }}:{{ ufw_test_host_allow_port }}/"
+      register: ufw_host_allow_probe
+      changed_when: false
+      failed_when: >-
+        ufw_host_allow_probe.rc != 0 or
+        'host-ok' not in ufw_host_allow_probe.stdout
+
+    - name: Verify the denied host port is blocked.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - --rm
+          - --network
+          - ufw-test
+          - curlimages/curl:8.5.0
+          - -sf
+          - --connect-timeout
+          - "2"
+          - --max-time
+          - "3"
+          - "http://{{ ufw_test_gw }}:{{ ufw_test_host_deny_port }}/"
+      register: ufw_host_deny_probe
+      changed_when: false
+      failed_when: ufw_host_deny_probe.rc == 0
+
+    - name: Verify the allowed Docker published port is reachable.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - --rm
+          - --network
+          - ufw-test
+          - curlimages/curl:8.5.0
+          - -sf
+          - --connect-timeout
+          - "2"
+          - --max-time
+          - "3"
+          - "http://{{ ufw_test_gw }}:{{ ufw_test_docker_allow_port }}/"
+      register: ufw_docker_probe_allow
+      changed_when: false
+      failed_when: >-
+        ufw_docker_probe_allow.rc != 0 or
+        'docker-ok' not in ufw_docker_probe_allow.stdout
+    - name: Verify the denied Docker published port is blocked.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - --rm
+          - --network
+          - ufw-test
+          - curlimages/curl:8.5.0
+          - -sf
+          - --connect-timeout
+          - "2"
+          - --max-time
+          - "3"
+          - "http://{{ ufw_test_gw }}:{{ ufw_test_docker_deny_port }}/"
+      register: ufw_docker_deny_probe
+      changed_when: false
+      failed_when: ufw_docker_deny_probe.rc == 0

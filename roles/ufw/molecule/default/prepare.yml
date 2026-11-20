@@ -1,0 +1,106 @@
+---
+- name: Prepare
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
+  tasks:
+    - name: Install packages needed for Docker-in-Docker and connectivity tests.
+      ansible.builtin.package:
+        name:
+          - ca-certificates
+          - curl
+          - fuse-overlayfs
+          - netcat-traditional
+        state: present
+        update_cache: true
+
+    - name: Create Docker config directory.
+      ansible.builtin.file:
+        path: /etc/docker
+        state: directory
+        mode: "0755"
+
+    - name: Configure Docker to use fuse-overlayfs.
+      ansible.builtin.copy:
+        dest: /etc/docker/daemon.json
+        mode: "0644"
+        content: |
+          {
+            "storage-driver": "fuse-overlayfs",
+            "firewall-backend": "iptables"
+          }
+
+    - name: Download Docker install script.
+      ansible.builtin.get_url:
+        url: https://get.docker.com
+        dest: /tmp/docker_install.sh
+        mode: "0744"
+
+    - name: Install Docker.
+      ansible.builtin.command:
+        cmd: bash /tmp/docker_install.sh
+        creates: /usr/bin/docker
+
+    - name: Ensure Docker has started.
+      ansible.builtin.service:
+        name: docker
+        state: started
+
+    - name: Create Docker network used by probe clients.
+      ansible.builtin.command:
+        cmd: docker network create --subnet {{ ufw_test_net }} ufw-test
+
+    - name: Pull curl image used by verify probes.
+      ansible.builtin.command:
+        cmd: docker pull curlimages/curl:8.5.0
+
+    - name: Start allowed host test HTTP server.
+      ansible.builtin.shell:
+        cmd: >
+          set -o pipefail;
+          bash -c 'while true; do {
+            echo -ne "HTTP/1.1 200 OK\r\nContent-Length: 7\r\nContent-Type: text/plain\r\n\r\nhost-ok";
+          } | nc -l -p {{ ufw_test_host_allow_port }}; done' > /tmp/ufw-host-allow.log 2>&1 &
+        executable: /bin/bash
+
+    - name: Start denied host test HTTP server.
+      ansible.builtin.shell:
+        cmd: >
+          set -o pipefail;
+          bash -c 'while true; do {
+            echo -ne "HTTP/1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/plain\r\n\r\nhost-deny";
+          } | nc -l -p {{ ufw_test_host_deny_port }}; done' > /tmp/ufw-host-deny.log 2>&1 &
+        executable: /bin/bash
+
+    - name: Start allowed Docker test HTTP server.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - -d
+          - --name
+          - ufw-test-allow
+          - --restart
+          - unless-stopped
+          - -p
+          - "{{ ufw_test_docker_allow_port }}:{{ ufw_test_docker_allow_port }}"
+          - hashicorp/http-echo:1.0.0
+          - -text=docker-ok
+          - -listen=:{{ ufw_test_docker_allow_port }}
+
+    - name: Start denied Docker test HTTP server.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - -d
+          - --name
+          - ufw-test-deny
+          - --restart
+          - unless-stopped
+          - -p
+          - "{{ ufw_test_docker_deny_port }}:{{ ufw_test_docker_deny_port }}"
+          - hashicorp/http-echo:1.0.0
+          - -text=docker-deny
+          - -listen=:{{ ufw_test_docker_deny_port }}

@@ -1,0 +1,14 @@
+---
+ufw_test_net: "10.255.10.0/24"
+ufw_test_gw: "10.255.10.1"
+
+ufw_test_host_allow_port: "8080"
+ufw_test_host_deny_port: "8081"
+ufw_test_docker_allow_port: "9080"
+ufw_test_docker_deny_port: "9081"
+
+ufw_rules:
+  - type: host
+    port: "{{ ufw_test_host_allow_port }}"
+  - type: docker
+    port: "{{ ufw_test_docker_allow_port }}"

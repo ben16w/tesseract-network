@@ -1,0 +1,26 @@
+---
+
+ufw_rules: []
+# e.g.
+# ufw_rules:
+#   - type: host
+#     interface: "tailscale0"
+#   - type: host
+#     interface: "eth0"
+#     src: "192.168.1.0/24"
+#     port: "22"
+#   - type: docker
+#     interface: "tailscale0"
+#   - type: docker
+#     src: "192.168.1.0/24"
+#   - type: both
+#     interface: "tailscale0"
+#     src: "100.64.0.0/10"
+#   - type: docker
+#     src: "192.168.1.50"
+#     port: "9000"
+
+# Subnets Docker gives containers. Lets them reach the LAN and the host.
+# Published ports stay filtered by ufw_rules.
+ufw_docker_subnets:
+  - "172.16.0.0/12"

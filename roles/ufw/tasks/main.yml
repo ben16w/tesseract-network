@@ -1,0 +1,110 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - ufw_rules is iterable
+      - ufw_rules | rejectattr('type', 'defined') | list | length == 0
+      - ufw_rules | rejectattr('type', 'in', ['host', 'docker', 'both']) | list | length == 0
+      - ufw_rules | rejectattr('interface', 'defined') | rejectattr('src', 'defined') | rejectattr('port', 'defined') | list | length == 0
+
+- name: Install UFW.
+  ansible.builtin.package:
+    name: ufw
+    update_cache: true
+
+- name: Check for a recorded UFW rule list.
+  ansible.builtin.stat:
+    path: /etc/ufw/tesseract-rules.yml
+  register: ufw_rules_record
+
+- name: Record the UFW rules this role manages.
+  ansible.builtin.copy:
+    dest: /etc/ufw/tesseract-rules.yml
+    content: "{{ {'rules': ufw_rules, 'docker_subnets': ufw_docker_subnets} | to_nice_yaml(sort_keys=True) }}"
+    owner: root
+    group: root
+    mode: "0600"
+  register: ufw_rules_file
+
+- name: Reset UFW when the recorded rules change.
+  community.general.ufw:
+    state: reset
+  when: >-
+    ufw_rules_file.changed and
+    (ufw_rules | length > 0 or ufw_rules_record.stat.exists)
+  notify: reload ufw
+
+- name: When host UFW rules are provided, configure UFW.
+  when: ufw_rules | selectattr('type', 'in', ['host', 'both']) | list | length > 0
+  block:
+    - name: Configure host UFW allows.
+      community.general.ufw:
+        rule: allow
+        interface: "{{ item.interface | default(omit) }}"
+        direction: "{{ 'in' if item.interface is defined else omit }}"
+        src: "{{ item.src | default(omit) }}"
+        port: "{{ item.port | default(omit) }}"
+        state: enabled
+      loop: "{{ ufw_rules | selectattr('type', 'in', ['host', 'both']) }}"
+
+- name: When Docker UFW rules are provided, configure UFW.
+  when: ufw_rules | selectattr('type', 'in', ['docker', 'both']) | list | length > 0
+  block:
+    - name: Assert Docker is using the iptables firewall backend.
+      ansible.builtin.command:
+        argv:
+          - docker
+          - info
+          - --format
+          - "{% raw %}{{.FirewallBackend.Driver}}{% endraw %}"
+      register: ufw_docker_backend
+      changed_when: false
+      failed_when: >-
+        ufw_docker_backend.rc != 0 or
+        (ufw_docker_backend.stdout | length > 0 and
+         ufw_docker_backend.stdout is not match('^iptables'))
+
+    - name: Install IPv4 UFW rules that filter Docker published ports.
+      ansible.builtin.blockinfile:
+        path: /etc/ufw/after.rules
+        marker: "# {mark} UFW AND DOCKER"
+        block: "{{ lookup('ansible.builtin.template', 'after.rules.j2') }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: reload ufw
+
+    - name: Install IPv6 UFW rules that filter Docker published ports.
+      ansible.builtin.blockinfile:
+        path: /etc/ufw/after6.rules
+        marker: "# {mark} UFW AND DOCKER"
+        block: "{{ lookup('ansible.builtin.template', 'after6.rules.j2') }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: reload ufw
+
+    - name: Allow trusted sources to reach published Docker ports.
+      community.general.ufw:
+        rule: allow
+        route: true
+        interface: "{{ item.interface | default(omit) }}"
+        direction: "{{ 'in' if item.interface is defined else omit }}"
+        src: "{{ item.src | default(omit) }}"
+        port: "{{ item.port | default(omit) }}"
+        state: enabled
+      loop: "{{ ufw_rules | selectattr('type', 'in', ['docker', 'both']) }}"
+
+    - name: Allow Docker containers to reach host services.
+      community.general.ufw:
+        rule: allow
+        src: "{{ item }}"
+        state: enabled
+      loop: "{{ ufw_docker_subnets }}"
+
+- name: Deny unmatched traffic and enable UFW.
+  when: ufw_rules | length > 0
+  community.general.ufw:
+    policy: deny
+    state: enabled
