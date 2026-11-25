@@ -1,0 +1,43 @@
+---
+
+- name: Read installed Go version.
+  ansible.builtin.command: /usr/local/go/bin/go version
+  register: proxy_installed_go_version
+  failed_when: false
+  changed_when: false
+
+- name: Download and install Go if required.
+  when: proxy_installed_go_version.rc != 0 or proxy_go_version not in proxy_installed_go_version.stdout
+  block:
+    - name: Remove existing Go installation.
+      ansible.builtin.file:
+        path: /usr/local/go
+        state: absent
+
+    - name: Download Go archive.
+      ansible.builtin.get_url:
+        url: https://go.dev/dl/go{{ proxy_go_version }}.linux-{{ download_arch }}.tar.gz
+        dest: /tmp/go.tar.gz
+        mode: '0744'
+        owner: root
+        group: root
+        force: true
+      register: download_go
+      retries: 5
+      delay: 10
+      until: download_go is succeeded
+
+    - name: Extract Go archive into /usr/local/go.
+      ansible.builtin.unarchive:
+        src: /tmp/go.tar.gz
+        dest: /usr/local
+        remote_src: true
+
+- name: Add Go bin directory to system PATH.
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/go.sh
+    line: 'export PATH=$PATH:/usr/local/go/bin'
+    create: true
+    owner: root
+    group: root
+    mode: '0644'

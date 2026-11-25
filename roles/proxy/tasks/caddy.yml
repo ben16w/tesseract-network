@@ -1,0 +1,114 @@
+---
+
+- name: Create Caddy directory.
+  ansible.builtin.file:
+    path: /opt/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Read installed xcaddy build version.
+  ansible.builtin.slurp:
+    src: /opt/caddy/XCADDY_VERSION
+  register: proxy_installed_xcaddy_version
+  failed_when: false
+
+- name: Download and build Caddy if required.
+  when: >-
+    proxy_installed_xcaddy_version.content is not defined
+    or (proxy_installed_xcaddy_version.content | b64decode | trim) != proxy_xcaddy_version
+  notify: restart caddy
+  block:
+    - name: Download xcaddy package.
+      ansible.builtin.get_url:
+        url: "https://github.com/caddyserver/xcaddy/releases/download/\
+          v{{ proxy_xcaddy_version }}/\
+          xcaddy_{{ proxy_xcaddy_version }}_linux_{{ download_arch }}.deb"
+        dest: /tmp/xcaddy.deb
+        owner: root
+        group: root
+        mode: '0644'
+        force: true
+      register: download_xcaddy
+      retries: 5
+      delay: 10
+      until: download_xcaddy is succeeded
+
+    - name: Install xcaddy package.
+      ansible.builtin.apt:
+        deb: /tmp/xcaddy.deb
+
+    - name: Remove previous Caddy build directory.
+      ansible.builtin.file:
+        path: /tmp/caddy
+        state: absent
+
+    - name: Create temporary Caddy build directory.
+      ansible.builtin.file:
+        path: /tmp/caddy
+        state: directory
+        owner: root
+        group: root
+        mode: '0777'
+
+    - name: Build Caddy with xcaddy.
+      environment:
+        PATH: "{{ ansible_facts['env'].PATH }}:/usr/local/go/bin"
+      ansible.builtin.command:
+        cmd: >
+          xcaddy build
+          --with github.com/caddy-dns/cloudflare
+          --with github.com/caddyserver/cache-handler
+        chdir: /tmp/caddy
+      changed_when: true
+
+    - name: Install Caddy binary.
+      ansible.builtin.copy:
+        src: /tmp/caddy/caddy
+        dest: /opt/caddy/caddy
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Record installed xcaddy build version.
+      ansible.builtin.copy:
+        content: "{{ proxy_xcaddy_version }}\n"
+        dest: /opt/caddy/XCADDY_VERSION
+        mode: '0644'
+
+- name: Create Caddy log directory.
+  ansible.builtin.file:
+    path: /var/log/caddy
+    state: directory
+    owner: root
+    group: root
+    mode: '0777'
+
+- name: Template Caddyfile.
+  notify: restart caddy
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /opt/caddy/Caddyfile
+    force: true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create Caddy service unit.
+  notify: restart caddy
+  ansible.builtin.template:
+    src: caddy.service.j2
+    dest: /etc/systemd/system/caddy.service
+    force: true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start and enable Caddy service.
+  ansible.builtin.systemd:
+    state: started
+    name: caddy
+    enabled: true
+    daemon_reload: true

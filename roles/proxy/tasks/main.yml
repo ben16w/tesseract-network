@@ -8,12 +8,12 @@
       - proxy_xcaddy_version is not none
       - proxy_go_version is not none
 
-- name: Setting architecture to amd64.
+- name: Set architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "amd64"
   when: ansible_facts['architecture'] == "x86_64"
 
-- name: Setting architecture to arm64.
+- name: Set architecture to arm64.
   ansible.builtin.set_fact:
     download_arch: "arm64"
   when: '"armv" in ansible_facts["architecture"] or "aarch" in ansible_facts["architecture"]'
@@ -34,138 +34,10 @@
     group: root
     mode: '0644'
 
-- name: Check if Go is installed.
-  ansible.builtin.stat:
-    path: /usr/local/go
-  register: is_go_installed
+- name: Configure Go.
+  ansible.builtin.include_tasks:
+    file: go.yml
 
-- name: If Go is not installed.
-  when: not is_go_installed.stat.exists
-  block:
-
-    - name: Download Go archive.
-      ansible.builtin.get_url:
-        url: https://go.dev/dl/go{{ proxy_go_version }}.linux-{{ download_arch }}.tar.gz
-        dest: /tmp/go.tar.gz
-        mode: '0744'
-        owner: root
-        group: root
-      register: download_go
-      retries: 5
-      delay: 10
-      until: download_go is succeeded
-
-    - name: Extract Go archive into /usr/local/go.
-      ansible.builtin.unarchive:
-        src: /tmp/go.tar.gz
-        dest: /usr/local
-        remote_src: true
-        creates: /usr/local/go
-
-- name: Add another bin dir to system-wide $PATH.
-  ansible.builtin.lineinfile:
-    path: /etc/profile.d/go.sh
-    line: 'export PATH=$PATH:/usr/local/go/bin'
-    create: true
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Create caddy directory.
-  ansible.builtin.file:
-    path: /opt/caddy
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Check if Caddy is installed.
-  ansible.builtin.stat:
-    path: /opt/caddy/caddy
-  register: is_caddy_installed
-
-- name: If Caddy is not installed.
-  when: not is_caddy_installed.stat.exists
-  block:
-
-    - name: Download and extract xcaddy archive into tmp directory.
-      ansible.builtin.get_url:
-        url: "https://github.com/caddyserver/xcaddy/releases/download/\
-          v{{ proxy_xcaddy_version }}/\
-          xcaddy_{{ proxy_xcaddy_version }}_linux_{{ download_arch }}.deb"
-        dest: /tmp/xcaddy.deb
-        owner: root
-        group: root
-        mode: '0644'
-      register: download_xcaddy
-      retries: 5
-      delay: 10
-      until: download_xcaddy is succeeded
-
-    - name: Install a xcaddy package.
-      ansible.builtin.apt:
-        deb: /tmp/xcaddy.deb
-
-    - name: Create tmp caddy directory.
-      ansible.builtin.file:
-        path: /tmp/caddy
-        state: directory
-        owner: root
-        group: root
-        mode: '0777'
-
-    - name: Xcaddy build.
-      environment:
-        PATH: "{{ ansible_facts['env'].PATH }}:/usr/local/go/bin"
-      ansible.builtin.command:
-        cmd: >
-          xcaddy build
-          --with github.com/caddy-dns/cloudflare
-          --with github.com/caddyserver/cache-handler
-        creates: /tmp/caddy/caddy
-        chdir: /tmp/caddy
-      when: not is_caddy_installed.stat.exists
-
-    - name: Install caddy.
-      ansible.builtin.copy:
-        src: /tmp/caddy/caddy
-        dest: /opt/caddy/caddy
-        remote_src: true
-        owner: root
-        group: root
-        mode: '0755'
-
-- name: Create caddy log directory.
-  ansible.builtin.file:
-    path: /var/log/caddy
-    state: directory
-    owner: root
-    group: root
-    mode: '0777'
-
-- name: Template Caddyfile.
-  notify: restart caddy
-  ansible.builtin.template:
-    src: Caddyfile.j2
-    dest: /opt/caddy/Caddyfile
-    force: true
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Create caddy service unit.
-  notify: restart caddy
-  ansible.builtin.template:
-    src: caddy.service.j2
-    dest: /etc/systemd/system/caddy.service
-    force: true
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Start and enable caddy service.
-  ansible.builtin.systemd:
-    state: started
-    name: caddy
-    enabled: true
-    daemon_reload: true
+- name: Configure Caddy.
+  ansible.builtin.include_tasks:
+    file: caddy.yml
