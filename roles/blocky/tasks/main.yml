@@ -36,18 +36,6 @@
     download_arch: "arm64"
   when: '"armv" in ansible_facts["architecture"] or "aarch" in ansible_facts["architecture"]'
 
-- name: Downloading blocky.
-  ansible.builtin.get_url:
-    url: "https://github.com/0xERR0R/blocky/releases/download/v{{ blocky_version }}/blocky_v{{ blocky_version }}_Linux_{{ download_arch }}.tar.gz"
-    dest: /tmp/blocky.tar.gz
-    owner: root
-    group: root
-    mode: '0755'
-  register: download_blocky
-  retries: 5
-  delay: 10
-  until: download_blocky is succeeded
-
 - name: Create blocky logs directory.
   ansible.builtin.file:
     path: /var/log/blocky
@@ -64,15 +52,45 @@
     group: root
     mode: '0755'
 
-- name: Extract blocky to installation directory.
+- name: Read installed Blocky version.
+  ansible.builtin.slurp:
+    src: /opt/blocky/VERSION
+  register: blocky_installed_version
+  failed_when: false
+
+- name: Download and install Blocky if required.
+  when: >-
+    blocky_installed_version.content is not defined
+    or (blocky_installed_version.content | b64decode | trim) != blocky_version
   notify: restart blocky
-  ansible.builtin.unarchive:
-    src: /tmp/blocky.tar.gz
-    dest: /opt/blocky
-    remote_src: true
-    owner: root
-    group: root
-    mode: '0755'
+  block:
+    - name: Downloading blocky.
+      ansible.builtin.get_url:
+        url: "https://github.com/0xERR0R/blocky/releases/download/v{{ blocky_version }}/blocky_v{{ blocky_version }}_Linux_{{ download_arch }}.tar.gz"
+        dest: /tmp/blocky.tar.gz
+        owner: root
+        group: root
+        mode: '0755'
+        force: true
+      register: download_blocky
+      retries: 5
+      delay: 10
+      until: download_blocky is succeeded
+
+    - name: Extract blocky to installation directory.
+      ansible.builtin.unarchive:
+        src: /tmp/blocky.tar.gz
+        dest: /opt/blocky
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Record installed Blocky version.
+      ansible.builtin.copy:
+        content: "{{ blocky_version }}\n"
+        dest: /opt/blocky/VERSION
+        mode: '0644'
 
 - name: Template configuration file to config.yml.
   notify: restart blocky
