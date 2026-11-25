@@ -20,17 +20,27 @@
     msg: "Unsupported architecture: {{ ansible_facts['architecture'] }}"
   when: architecture is not defined
 
-- name: Download cloudflared.
-  ansible.builtin.get_url:
-    url: "https://github.com/cloudflare/cloudflared/releases/download/{{ cloudflared_version }}/cloudflared-linux-{{ architecture }}.deb"
-    dest: /tmp/cloudflared.deb
-    owner: root
-    group: root
-    mode: '0644'
+- name: Read installed cloudflared version.
+  ansible.builtin.command: cloudflared --version
+  register: cloudflared_installed_version
+  failed_when: false
+  changed_when: false
 
-- name: Install cloudflared.
-  ansible.builtin.apt:
-    deb: /tmp/cloudflared.deb
+- name: Download and install cloudflared if required.
+  when: cloudflared_installed_version.rc != 0 or cloudflared_version not in cloudflared_installed_version.stdout
+  block:
+    - name: Download cloudflared.
+      ansible.builtin.get_url:
+        url: "https://github.com/cloudflare/cloudflared/releases/download/{{ cloudflared_version }}/cloudflared-linux-{{ architecture }}.deb"
+        dest: /tmp/cloudflared.deb
+        owner: root
+        group: root
+        mode: '0644'
+        force: true
+
+    - name: Install cloudflared.
+      ansible.builtin.apt:
+        deb: /tmp/cloudflared.deb
 
 - name: Install cloudflared service
   when: cloudflared_token is not none
