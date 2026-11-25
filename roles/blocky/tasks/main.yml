@@ -109,9 +109,11 @@
     owner: root
     group: root
     mode: '0755'
+  notify: restart blocky
 
 - name: Make sure the blocky systemd service unit is running and enabled.
   ansible.builtin.systemd:
     state: started
     name: blocky
     enabled: true
+    daemon_reload: true

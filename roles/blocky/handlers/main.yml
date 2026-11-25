@@ -1,9 +1,10 @@
 ---
 
 - name: Restart blocky service.
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: blocky.service
     state: restarted
+    daemon_reload: true
   listen: restart blocky
 
 - name: Restart systemd-resolved service.
