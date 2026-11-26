@@ -41,6 +41,7 @@
     - name: Install cloudflared.
       ansible.builtin.apt:
         deb: /tmp/cloudflared.deb
+      notify: restart cloudflared
 
 - name: Install cloudflared service
   when: cloudflared_token is not none

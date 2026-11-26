@@ -1,0 +1,8 @@
+---
+
+- name: Restart cloudflared service.
+  listen: restart cloudflared
+  when: cloudflared_token is not none
+  ansible.builtin.systemd:
+    name: cloudflared.service
+    state: restarted
